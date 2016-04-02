@@ -1,31 +1,27 @@
 # Projeto de Sistemas Distribuídos 2015-2016 #
 
-Grupo de SD ... - Campus ...
-*(preencher com número do grupo de SD no Fénix e depois apagar esta linha)*
+Grupo de SD 25 - Campus Taguspark
 
-... ... ...
+Luis Santos 77900 007lads@gmail.com
 
-... ... ...
+Pedro Fernandes 77961 (...)
 
-... ... ...
-*(preencher com nome, número e email de membro do grupo e depois apagar esta linha)*
+Constantin Zavgorodnii 78030 (...)
 
 
 Repositório:
-[tecnico-distsys/C_XX-project](https://github.com/tecnico-distsys/C_XX-project/)
+[tecnico-distsys/T_25-project](https://github.com/tecnico-distsys/T_25-project)
 
 -------------------------------------------------------------------------------
 
-## Instruções de instalação 
+## Instruções de instalação
 
 
 ### Ambiente
 
 [0] Iniciar sistema operativo
 
-Indicar Windows ou Linux
-*(escolher um dos dois, que esteja disponível nos laboratórios, e depois apagar esta linha)*
-
+Linux
 
 [1] Iniciar servidores de apoio
 
@@ -38,15 +34,16 @@ JUDDI:
 [2] Criar pasta temporária
 
 ```
-cd ...
-mkdir ...
+mkdir T_25-project
+cd T_25-project
+
 ```
 
 
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone ... 
+git clone https://github.com/tecnico-distsys/T_25-project
 ```
 *(colocar aqui comandos git para obter a versão entregue a partir da tag e depois apagar esta linha)*
 
@@ -71,7 +68,7 @@ mvn clean install
 [1] Construir e executar **servidor**
 
 ```
-cd ...-ws
+cd transporter-ws
 mvn clean install
 mvn exec:java
 ```
@@ -79,7 +76,7 @@ mvn exec:java
 [2] Construir **cliente** e executar testes
 
 ```
-cd ...-ws-cli
+cd transporter-ws-cli
 mvn clean install
 ```
 
@@ -93,7 +90,7 @@ mvn clean install
 [1] Construir e executar **servidor**
 
 ```
-cd ...-ws
+cd broker-ws
 mvn clean install
 mvn exec:java
 ```
@@ -102,7 +99,7 @@ mvn exec:java
 [2] Construir **cliente** e executar testes
 
 ```
-cd ...-ws-cli
+cd broker-ws-cli
 mvn clean install
 ```
 
