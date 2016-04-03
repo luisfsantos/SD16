@@ -25,9 +25,11 @@ Linux
 
 [1] Iniciar servidores de apoio
 
-JUDDI:
+[JUDDI](http://disciplinas.tecnico.ulisboa.pt/leic-sod/2015-2016/download/juddi-3.3.2_tomcat-7.0.64_9090.zip) (assumindo que existe o JUDDI na maquina):
+
 ```
-...
+cd $JUDDI_HOME/bin
+startup.sh
 ```
 
 
@@ -36,17 +38,14 @@ JUDDI:
 ```
 mkdir T_25-project
 cd T_25-project
-
 ```
 
 
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone https://github.com/tecnico-distsys/T_25-project
+git clone --branch E_1 https://github.com/tecnico-distsys/T_25-project
 ```
-*(colocar aqui comandos git para obter a versão entregue a partir da tag e depois apagar esta linha)*
-
 
 [4] Instalar módulos de bibliotecas auxiliares
 
