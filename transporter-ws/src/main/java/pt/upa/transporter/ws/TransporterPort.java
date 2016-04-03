@@ -7,7 +7,7 @@ import javax.jws.WebService;
 @WebService(
 	    endpointInterface="pt.upa.transporter.ws.TransporterPortType",
 	    wsdlLocation="transporter.1_0.wsdl",
-	    name="UpaTransporter",
+	    name="TransporterWebService",
 	    portName="TransporterPort",
 	    targetNamespace="http://ws.transporter.upa.pt/",
 	    serviceName="TransporterService"

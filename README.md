@@ -6,7 +6,7 @@ Luis Santos 77900 007lads@gmail.com
 
 Pedro Fernandes 77961 (...)
 
-Constantin Zavgorodnii 78030 (...)
+Constantin Zavgorodnii 78030 constantin.zavgorodnii@tecnico.ulisboa.pt
 
 
 Repositório:
