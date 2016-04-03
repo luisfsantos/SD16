@@ -38,6 +38,12 @@
             <artifactId>jaxws-rt</artifactId>
             <version>2.2.10</version>
         </dependency>
+        <!-- UDDI Naming -->
+        <dependency>
+            <groupId>pt.ulisboa.tecnico.sdis</groupId>
+            <artifactId>uddi-naming</artifactId>
+            <version>1.0</version>
+        </dependency>
         <!-- JMockit - must appear before JUnit -->
         <dependency>
             <groupId>org.jmockit</groupId>
@@ -122,7 +128,8 @@
                     <killAfter>-1</killAfter>
                     <mainClass>${mainclass}</mainClass>
                     <arguments>
-                        <argument>${ws.url}</argument>
+                    	<argument>${uddi.url}</argument>
+                        <argument>${ws.name}</argument>
                     </arguments>
                 </configuration>
             </plugin>
