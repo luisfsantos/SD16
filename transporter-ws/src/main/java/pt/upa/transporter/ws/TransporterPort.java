@@ -2,6 +2,9 @@ package pt.upa.transporter.ws;
 
 import java.util.List;
 
+import javax.jws.WebService;
+
+@WebService
 public class TransporterPort implements TransporterPortType {
 
 	@Override
