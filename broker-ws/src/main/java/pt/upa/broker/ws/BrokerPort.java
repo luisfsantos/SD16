@@ -17,7 +17,7 @@ public class BrokerPort implements BrokerPortType {
 	@Override
 	public String ping(String name) {
 		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
 	@Override
