@@ -27,8 +27,13 @@
 
         <mainclass>pt.upa.transporter.TransporterClientApplication</mainclass>
 
-        <ws.name>UpaTransporter</ws.name>
-        <uddi.url>http://localhost:9090</uddi.url>
+        <!-- instance number - redefine using -D option - e.g. mvn -Dws.i=2 exec:java -->
+        <ws.i>1</ws.i>
+
+        <ws.host>localhost</ws.host>
+        <ws.port>808${ws.i}</ws.port>
+        <ws.url>http://${ws.host}:${ws.port}/transporter-ws/endpoint</ws.url>
+        
     </properties>
 
     <dependencies>
@@ -128,8 +133,7 @@
                     <killAfter>-1</killAfter>
                     <mainClass>${mainclass}</mainClass>
                     <arguments>
-                    	<argument>${uddi.url}</argument>
-                        <argument>${ws.name}</argument>
+                    	<argument>${ws.url}</argument>
                     </arguments>
                 </configuration>
             </plugin>
