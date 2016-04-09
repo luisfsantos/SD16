@@ -76,7 +76,6 @@ public class TransporterPort implements TransporterPortType {
 				return this.jobs.get(id);
 			}
 		}
-		
 	}
 
 	@Override
