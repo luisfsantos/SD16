@@ -39,8 +39,7 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public String ping(String name) {
-		// TODO Auto-generated method stub
-		return name;
+		return companyName + name;
 	}
 
 	@Override
@@ -64,8 +63,20 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if(!this.jobs.containsKey(id)) {
+			BadJobFault fault = new BadJobFault();
+			fault.setId(id);
+			throw new BadJobFault_Exception(id, null);
+		} else {
+			if (accept) {
+				this.jobs.get(id).setJobState(JobStateView.ACCEPTED);
+				return this.jobs.get(id);
+			} else {
+				this.jobs.get(id).setJobState(JobStateView.REJECTED);
+				return this.jobs.get(id);
+			}
+		}
+		
 	}
 
 	@Override
