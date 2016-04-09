@@ -1,8 +1,15 @@
 package pt.upa.transporter.ws;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jws.WebService;
+
+import pt.upa.transporter.domain.Job;
+import pt.upa.transporter.domain.NorthJob;
+import pt.upa.transporter.domain.SouthJob;
 
 @WebService(
 	    endpointInterface="pt.upa.transporter.ws.TransporterPortType",
@@ -13,6 +20,21 @@ import javax.jws.WebService;
 	    serviceName="TransporterService"
 	)
 public class TransporterPort implements TransporterPortType {
+	protected int id_counter;
+	protected Map<String, Job> jobs = new HashMap<String, Job>();
+	protected String companyName;
+	protected boolean even;
+	
+	public TransporterPort (String name) {
+		this.companyName = name;
+		if (name != null && name.length() != 0) {
+			String integer = name.substring("UpaTransporter".length());
+			System.out.println(integer);
+			int upatransporter = Integer.parseInt(integer);
+			this.even = (((upatransporter & 1) == 0)? true : false);
+		}
+		this.id_counter = 0;
+	}
 
 	@Override
 	public String ping(String name) {
@@ -23,8 +45,20 @@ public class TransporterPort implements TransporterPortType {
 	@Override
 	public JobView requestJob(String origin, String destination, int price)
 			throws BadLocationFault_Exception, BadPriceFault_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if (price > 100) {
+			return null;
+		}
+		else if (even) {
+			int newid = newID();
+			Job newJob = new NorthJob(origin, destination, companyName, price, newid);
+			this.jobs.put(String.valueOf(newid), newJob);
+			return newJob;
+		} else {
+			int newid = newID();
+			Job newJob = new SouthJob(origin, destination, companyName, price, newid);
+			this.jobs.put(String.valueOf(newid), newJob);
+			return newJob;
+		}
 	}
 
 	@Override
@@ -35,22 +69,22 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public JobView jobStatus(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.jobs.get(id);
 	}
 
 	@Override
 	public List<JobView> listJobs() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<JobView>(jobs.values());
 	}
 
 	@Override
 	public void clearJobs() {
-		// TODO Auto-generated method stub
-		
+		this.jobs.clear();
 	}
-
-	// TODO
+	
+	private int newID() {
+		id_counter++;
+		return id_counter;
+	}
 
 }

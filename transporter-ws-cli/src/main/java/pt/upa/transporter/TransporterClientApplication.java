@@ -15,6 +15,7 @@ public class TransporterClientApplication {
 
 		TransporterClient port = new TransporterClient(args[0]);
 		System.out.println(port.ping("testing..."));
+		System.out.println(port.requestJob("Leiria", "Lisboa", 20).getJobPrice());
 
 	}
 }

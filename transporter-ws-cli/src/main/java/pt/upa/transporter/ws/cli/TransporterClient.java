@@ -35,7 +35,7 @@ public class TransporterClient implements TransporterPortType {
 	public JobView requestJob(String origin, String destination, int price)
 			throws BadLocationFault_Exception, BadPriceFault_Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return port.requestJob(origin, destination, price);
 	}
 
 	@Override

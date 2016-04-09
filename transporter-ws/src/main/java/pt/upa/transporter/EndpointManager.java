@@ -20,7 +20,7 @@ public class EndpointManager {
 	}
 	
 	public void start() throws JAXRException {
-		TransporterPort port = new TransporterPort();
+		TransporterPort port = new TransporterPort(name);
 		endpoint = Endpoint.create(port);
 		endpoint.publish(url);
 		uddiNaming = new UDDINaming(uddiURL);
