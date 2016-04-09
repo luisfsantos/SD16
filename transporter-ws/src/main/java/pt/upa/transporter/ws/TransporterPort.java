@@ -27,11 +27,13 @@ public class TransporterPort implements TransporterPortType {
 	
 	public TransporterPort (String name) {
 		this.companyName = name;
+		
 		if (name != null && name.length() != 0) {
 			String transportNumber = name.substring("UpaTransporter".length());
 			int upatransporter = Integer.parseInt(transportNumber);
 			this.even = (((upatransporter & 1) == 0)? true : false);
 		}
+		
 		this.id_counter = 0;
 	}
 
@@ -46,18 +48,18 @@ public class TransporterPort implements TransporterPortType {
 			throws BadLocationFault_Exception, BadPriceFault_Exception {
 		if (price > 100) {
 			return null;
-		}
-		else if (even) {
-			int newid = newID();
-			Job newJob = new NorthJob(origin, destination, companyName, price, newid);
-			this.jobs.put(String.valueOf(newid), newJob);
-			return newJob;
 		} else {
 			int newid = newID();
-			Job newJob = new SouthJob(origin, destination, companyName, price, newid);
+			Job newJob;
+			if (even) {
+				newJob = new NorthJob(origin, destination, companyName, price, newid);
+			} else {
+				newJob = new SouthJob(origin, destination, companyName, price, newid);
+			}
 			this.jobs.put(String.valueOf(newid), newJob);
 			return newJob;
 		}
+		
 	}
 
 	@Override
