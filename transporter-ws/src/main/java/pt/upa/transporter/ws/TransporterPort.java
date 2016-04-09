@@ -28,9 +28,8 @@ public class TransporterPort implements TransporterPortType {
 	public TransporterPort (String name) {
 		this.companyName = name;
 		if (name != null && name.length() != 0) {
-			String integer = name.substring("UpaTransporter".length());
-			System.out.println(integer);
-			int upatransporter = Integer.parseInt(integer);
+			String transportNumber = name.substring("UpaTransporter".length());
+			int upatransporter = Integer.parseInt(transportNumber);
 			this.even = (((upatransporter & 1) == 0)? true : false);
 		}
 		this.id_counter = 0;
