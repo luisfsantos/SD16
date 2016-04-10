@@ -77,7 +77,7 @@ public abstract class Job extends JobView {
 	
 	
 	public void setTimer() {
-		timer.schedule(new UpdateJob(), new Random().nextInt(5000));
+		new UpdateJob().schedule();
 	}
 	
 	protected abstract int evaluate(int max_price);
