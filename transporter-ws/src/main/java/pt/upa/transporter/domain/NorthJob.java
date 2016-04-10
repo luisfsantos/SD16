@@ -8,7 +8,7 @@ import pt.upa.transporter.ws.BadPriceFault_Exception;
 
 public class NorthJob extends Job {
 
-	public NorthJob(String origin, String destination, String companyName, int max_price, int id) throws BadPriceFault_Exception, BadLocationFault_Exception {
+	public NorthJob(String origin, String destination, String companyName, int max_price, String id) throws BadPriceFault_Exception, BadLocationFault_Exception {
 		super(origin, destination, companyName, max_price, id);
 		if (!centre.contains(origin) && !north.contains(origin))  {
 			BadLocationFault fault = new BadLocationFault();
@@ -21,13 +21,6 @@ public class NorthJob extends Job {
 		}
 		
 		
-		
-	}
-	
-
-	@Override
-	public void evolve() {
-		// TODO Auto-generated method stub
 		
 	}
 

@@ -48,14 +48,14 @@ public class TransporterPort implements TransporterPortType {
 		if (price > 100) {
 			return null;
 		} else {
-			int newid = newID();
+			String newid = String.valueOf(newID());
 			Job newJob;
 			if (even) {
 				newJob = new NorthJob(origin, destination, companyName, price, newid);
 			} else {
 				newJob = new SouthJob(origin, destination, companyName, price, newid);
 			}
-			this.jobs.put(String.valueOf(newid), newJob);
+			this.jobs.put(newid, newJob);
 			return newJob;
 		}
 		
@@ -69,7 +69,9 @@ public class TransporterPort implements TransporterPortType {
 			throw new BadJobFault_Exception(id, null);
 		} else {
 			if (accept) {
-				this.jobs.get(id).setJobState(JobStateView.ACCEPTED);
+				Job accepted = this.jobs.get(id);
+				accepted.setJobState(JobStateView.ACCEPTED);
+				accepted.setTimer();
 				return this.jobs.get(id);
 			} else {
 				this.jobs.get(id).setJobState(JobStateView.REJECTED);
