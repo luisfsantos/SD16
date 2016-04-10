@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.jws.WebService;
 
@@ -56,7 +57,7 @@ public class TransporterPort implements TransporterPortType {
 				newJob = new SouthJob(origin, destination, companyName, price, newid);
 			}
 			this.jobs.put(newid, newJob);
-			return newJob;
+			return createView(newJob);
 		}
 		
 	}
@@ -68,26 +69,34 @@ public class TransporterPort implements TransporterPortType {
 			fault.setId(id);
 			throw new BadJobFault_Exception(id, null);
 		} else {
+			Job job = this.jobs.get(id);
 			if (accept) {
-				Job accepted = this.jobs.get(id);
-				accepted.setJobState(JobStateView.ACCEPTED);
-				accepted.setTimer();
-				return this.jobs.get(id);
+				job.accept();
+				job.setTimer();
+				return createView(job);
 			} else {
-				this.jobs.get(id).setJobState(JobStateView.REJECTED);
-				return this.jobs.get(id);
+				job.reject();
+				return createView(job);
 			}
 		}
 	}
 
 	@Override
 	public JobView jobStatus(String id) {
-		return this.jobs.get(id);
+		Job job = this.jobs.get(id);
+		if (job != null) {
+			return createView(job);
+		}
+		return null;
 	}
 
 	@Override
 	public List<JobView> listJobs() {
-		return new ArrayList<JobView>(jobs.values());
+		List<JobView> listJobs = new ArrayList<JobView>();
+		for(Entry<String, Job> mapEntry : jobs.entrySet()) {
+			listJobs.add(createView(mapEntry.getValue()));
+		}
+		return listJobs;
 	}
 
 	@Override
@@ -98,6 +107,17 @@ public class TransporterPort implements TransporterPortType {
 	private int newID() {
 		id_counter++;
 		return id_counter;
+	}
+	
+	private JobView createView(Job job) {
+			JobView viewJob = new JobView();
+			viewJob.setCompanyName(job.getCompanyName());
+			viewJob.setJobDestination(job.getJobDestination());
+			viewJob.setJobOrigin(job.getJobOrigin());
+			viewJob.setJobIdentifier(job.getJobIdentifier());
+			viewJob.setJobPrice(job.getJobPrice());
+			viewJob.setJobState(JobStateView.fromValue(job.getJobState().value()));
+			return viewJob;
 	}
 
 }

@@ -10,10 +10,17 @@ import java.util.Random;
 
 import pt.upa.transporter.ws.BadPriceFault;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
-import pt.upa.transporter.ws.JobStateView;
-import pt.upa.transporter.ws.JobView;
 
-public abstract class Job extends JobView {
+public abstract class Job{
+	protected String companyName;
+    protected String jobIdentifier;
+    protected String jobOrigin;
+    protected String jobDestination;
+    protected int jobPrice;
+    protected JobState jobState;
+	
+	
+	
 	protected static final Set<String> north = new HashSet<String>(
 			Arrays.asList(new String[] {"Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança"}
 			));
@@ -32,15 +39,15 @@ public abstract class Job extends JobView {
          public void run() {
     		 switch (jobState) {
 				case ACCEPTED:
-					setJobState(JobStateView.HEADING);
+					setJobState(JobState.HEADING);
 					schedule();
 					break;
 				case HEADING:
-					setJobState(JobStateView.ONGOING);
+					setJobState(JobState.ONGOING);
 					schedule();
 					break;
 				case ONGOING:
-					setJobState(JobStateView.COMPLETED);
+					setJobState(JobState.COMPLETED);
 					schedule();
 					break;
 				default:
@@ -61,17 +68,19 @@ public abstract class Job extends JobView {
     }
 	
 	public Job(String origin, String destination, String companyName, int max_price, String id) throws BadPriceFault_Exception {
+		
 		if (max_price < 0) {
 			BadPriceFault fault = new BadPriceFault();
 			fault.setPrice(max_price);
 			throw new BadPriceFault_Exception("Price cannot be below zero", fault);
 		}
+		
 		this.jobOrigin = origin;
 		this.jobDestination = destination;
 		this.companyName = companyName;
 		this.jobIdentifier = id;
 		this.jobPrice = this.evaluate(max_price);
-		this.jobState = JobStateView.PROPOSED;
+		this.jobState = JobState.PROPOSED;
 	}
 	
 	
@@ -81,5 +90,66 @@ public abstract class Job extends JobView {
 	}
 	
 	protected abstract int evaluate(int max_price);
+	
+	public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String value) {
+        this.companyName = value;
+    }
+
+    public String getJobIdentifier() {
+        return jobIdentifier;
+    }
+
+    public void setJobIdentifier(String value) {
+        this.jobIdentifier = value;
+    }
+
+    public String getJobOrigin() {
+        return jobOrigin;
+    }
+
+    public void setJobOrigin(String value) {
+        this.jobOrigin = value;
+    }
+
+    public String getJobDestination() {
+        return jobDestination;
+    }
+
+
+    public void setJobDestination(String value) {
+        this.jobDestination = value;
+    }
+
+    public int getJobPrice() {
+        return jobPrice;
+    }
+
+    public void setJobPrice(int value) {
+        this.jobPrice = value;
+    }
+
+    public JobState getJobState() {
+        return jobState;
+    }
+
+    public void setJobState(JobState value) {
+        this.jobState = value;
+    }
+
+
+	public void accept() {
+		this.setJobState(JobState.ACCEPTED);
+	}
+
+
+
+	public void reject() {
+		this.setJobState(JobState.REJECTED);
+		
+	}
 
 }

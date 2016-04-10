@@ -10,6 +10,7 @@ public class SouthJob extends Job {
 
 	public SouthJob(String origin, String destination, String companyName, int max_price, String id) throws BadLocationFault_Exception, BadPriceFault_Exception {
 		super(origin, destination, companyName, max_price, id);
+		
 		if (!centre.contains(origin) && !south.contains(origin))  {
 			BadLocationFault fault = new BadLocationFault();
 			fault.setLocation(origin);
