@@ -46,27 +46,26 @@ public class BrokerClient implements BrokerPortType {
 			throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 			UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return port.requestTransport(origin, destination, price);
 	}
 
 	@Override
 	public TransportView viewTransport(String id) throws UnknownTransportFault_Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return port.viewTransport(id);
 	}
 
 	@Override
 	public List<TransportView> listTransports() {
 		// TODO Auto-generated method stub
-		return null;
+		return port.listTransports();
 	}
 
 	@Override
 	public void clearTransports() {
 		// TODO Auto-generated method stub
-		
+		port.clearTransports();
 	}
 
-	// TODO
 
 }
