@@ -167,8 +167,10 @@ public class BrokerPort implements BrokerPortType {
 
 	@Override
 	public void clearTransports() {
-		// TODO Auto-generated method stub
-		
+		for(Entry <String, Transport> transportEntry: transports.entrySet()){
+			transportEntry.getValue().getTransporterEndpoint().clearJobs();
+		}
+		transports.clear();
 	}
 
 	private int getNextTransportId(){
