@@ -84,6 +84,13 @@ public class BrokerPort implements BrokerPortType {
 			}
 			}
 		
+		if(jobs.isEmpty()){
+			UnavailableTransportFault transportFault = new UnavailableTransportFault();
+			transportFault.setDestination(destination);
+			transportFault.setOrigin(origin);
+			throw new UnavailableTransportFault_Exception("Transport not found", transportFault);
+		}
+		
 		int bestPrice = price;
 		for (TransporterJob transpJob:jobs) {
 			if(transpJob.getJobPrice() < bestPrice){
@@ -109,10 +116,7 @@ public class BrokerPort implements BrokerPortType {
 				}
 			}
 		} catch (BadJobFault_Exception e) {
-			UnavailableTransportFault transportFault = new UnavailableTransportFault();
-			transportFault.setDestination(destination);
-			transportFault.setOrigin(origin);
-			throw new UnavailableTransportFault_Exception("Transport fault", transportFault);
+			// FIXME
 		}
 		
 		return transportId;
