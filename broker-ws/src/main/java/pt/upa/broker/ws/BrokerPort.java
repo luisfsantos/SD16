@@ -23,7 +23,7 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 	    serviceName="BrokerService"
 	)
 public class BrokerPort implements BrokerPortType {
-	
+	protected int transportId;
 	protected Map<String, Transport> transports = new HashMap<String, Transport>();
 	protected Map<String, TransporterClient> transporterCompanies = new HashMap<String, TransporterClient>();
 	
@@ -33,7 +33,7 @@ public class BrokerPort implements BrokerPortType {
 		Collection<String> endpointAddresses = uddiNaming.list("UpaTransporter%");
 		
 		for(String endpointAddress: endpointAddresses){
-			// FIXME 
+			// FIXME (remove print)
 			System.out.println(endpointAddress); 
 			TransporterClient company = new TransporterClient(endpointAddress);
 			transporterCompanies.put(endpointAddress, company);
@@ -54,7 +54,16 @@ public class BrokerPort implements BrokerPortType {
 	public String requestTransport(String origin, String destination, int price)
 			throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 			UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
-		// TODO Auto-generated method stub
+		
+		String transportId = String.valueOf(getNextTransportId());
+		Transport newTransport = new Transport(origin, destination, price, transportId);
+		
+		// TODO jobRequest to all companies
+		
+		// TODO select better job, exceptions if not exists job
+		
+		
+		
 		return null;
 	}
 
@@ -76,6 +85,9 @@ public class BrokerPort implements BrokerPortType {
 		
 	}
 
-	// TODO
+	private int getNextTransportId(){
+		this.transportId++;
+		return this.transportId; 
+	}
 
 }
