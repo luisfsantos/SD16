@@ -12,7 +12,8 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 
 public class Transport  {
 	protected String id;
-    protected String origin;
+	protected String jobIdentifier;
+	protected String origin;
     protected String destination;
     protected Integer price;
     protected String transporterCompany;
@@ -49,6 +50,16 @@ public class Transport  {
 		this.id = id;
 		this.state = TransportState.REQUESTED;
 	}
+	
+	public void bindTransporter(Integer price, String jobIdentifier, TransportState state,
+			String companyName, TransporterClient transporterCompany) {
+		
+		this.setPrice(price);
+		this.setJobIdentifier(jobIdentifier);
+		this.setState(state);
+		this.setTransporterCompany(companyName);
+		this.setTransporterEndpoint(transporterCompany);
+	}
 
 	public String getId() {
 		return id;
@@ -56,6 +67,14 @@ public class Transport  {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+	
+    public String getJobIdentifier() {
+		return jobIdentifier;
+	}
+
+	public void setJobIdentifier(String jobIdentifier) {
+		this.jobIdentifier = jobIdentifier;
 	}
 
 	public String getOrigin() {

@@ -22,7 +22,8 @@ public class BrokerClientApplication {
 		try {
 			String result = port.ping("friend");
 			System.out.println(result);
-
+			String idTransport = port.requestTransport("Lisboa", "Coimbra", 9);
+			System.out.println(idTransport);
 		} catch (Exception pfe) {
 			System.out.println("Caught: " + pfe);
 		}

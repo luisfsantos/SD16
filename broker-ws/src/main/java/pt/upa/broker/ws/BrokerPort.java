@@ -1,6 +1,7 @@
 package pt.upa.broker.ws;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,12 @@ import javax.xml.registry.JAXRException;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.domain.Transport;
+import pt.upa.broker.domain.TransportState;
+import pt.upa.broker.domain.TransporterJob;
+import pt.upa.transporter.ws.BadJobFault_Exception;
+import pt.upa.transporter.ws.BadLocationFault_Exception;
+import pt.upa.transporter.ws.BadPriceFault_Exception;
+import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 @WebService(
@@ -56,15 +63,59 @@ public class BrokerPort implements BrokerPortType {
 			UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 		
 		String transportId = String.valueOf(getNextTransportId());
-		Transport newTransport = new Transport(origin, destination, price, transportId);
 		
-		// TODO jobRequest to all companies
+		transports.put(transportId, new Transport(origin, destination, price, transportId));
 		
-		// TODO select better job, exceptions if not exists job
+		List<TransporterJob> jobs = new ArrayList<TransporterJob>();
+		for(Entry <String, TransporterClient> company: transporterCompanies.entrySet()) {
+			try {
+				JobView job = company.getValue().requestJob(origin, destination, price);
+				if (job != null ) {
+					jobs.add(new TransporterJob(job, company.getValue()));
+				}
+			} catch (BadLocationFault_Exception e) {
+				UnknownLocationFault unknownLocation = new UnknownLocationFault();
+				unknownLocation.setLocation(e.getFaultInfo().getLocation());
+				throw new UnknownLocationFault_Exception("Unknown location", unknownLocation);
+			} catch (BadPriceFault_Exception e) {
+				InvalidPriceFault invalidPrice = new InvalidPriceFault();
+				invalidPrice.setPrice(e.getFaultInfo().getPrice());
+				throw new InvalidPriceFault_Exception("Price cannot be below zero", invalidPrice);
+			}
+			}
 		
+		int bestPrice = price;
+		for (TransporterJob transpJob:jobs) {
+			if(transpJob.getJobPrice() < bestPrice){
+				bestPrice = transpJob.getJobPrice();
+				transports.get(transportId).bindTransporter(price, transpJob.getJob().getJobIdentifier(),
+						TransportState.BUDGETED, transpJob.getCompanyName(), transpJob.getCompany());
+			}
+		}
+		if (bestPrice == price){
+			transports.get(transportId).setState(TransportState.FAILED);
+			UnavailableTransportPriceFault priceFault = new UnavailableTransportPriceFault();
+			priceFault.setBestPriceFound(bestPrice);
+			throw new UnavailableTransportPriceFault_Exception("Cannot find transporter to current price", priceFault);
+		}
 		
+		try {
+			String jobId = transports.get(transportId).getJobIdentifier();
+			transports.get(transportId).getTransporterEndpoint().decideJob(jobId, true);
+			transports.get(transportId).setState(TransportState.BOOKED);
+			for (TransporterJob transpJob:jobs){
+				if(!transpJob.getCompany().equals(transports.get(transportId).getTransporterEndpoint())){
+						transpJob.getCompany().decideJob(transpJob.getJob().getJobIdentifier(), false);
+				}
+			}
+		} catch (BadJobFault_Exception e) {
+			UnavailableTransportFault transportFault = new UnavailableTransportFault();
+			transportFault.setDestination(destination);
+			transportFault.setOrigin(origin);
+			throw new UnavailableTransportFault_Exception("Transport fault", transportFault);
+		}
 		
-		return null;
+		return transportId;
 	}
 
 	@Override
