@@ -4,7 +4,7 @@ Grupo de SD 25 - Campus Taguspark
 
 Luis Santos 77900 007lads@gmail.com
 
-Pedro Fernandes 77961 (...)
+Pedro Fernandes 77961 ...
 
 Constantin Zavgorodnii 78030 constantin.zavgorodnii@tecnico.ulisboa.pt
 
@@ -44,7 +44,7 @@ cd T_25-project
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone --branch E_1 https://github.com/tecnico-distsys/T_25-project
+git clone --branch SD_1 https://github.com/tecnico-distsys/T_25-project
 ```
 
 [4] Instalar módulos de bibliotecas auxiliares

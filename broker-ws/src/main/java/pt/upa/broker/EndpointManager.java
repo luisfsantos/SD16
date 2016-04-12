@@ -1,10 +1,11 @@
-package pt.upa.transporter;
+package pt.upa.broker;
+
 
 import javax.xml.registry.JAXRException;
 import javax.xml.ws.Endpoint;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.upa.transporter.ws.TransporterPort;
+import pt.upa.broker.ws.BrokerPort;
 
 public class EndpointManager {
 	private String uddiURL;
@@ -20,7 +21,7 @@ public class EndpointManager {
 	}
 	
 	public void start() throws JAXRException {
-		TransporterPort port = new TransporterPort(name);
+		BrokerPort port = new BrokerPort(uddiURL);
 		endpoint = Endpoint.create(port);
 		endpoint.publish(url);
 		uddiNaming = new UDDINaming(uddiURL);
@@ -39,3 +40,4 @@ public class EndpointManager {
 	}
 
 }
+

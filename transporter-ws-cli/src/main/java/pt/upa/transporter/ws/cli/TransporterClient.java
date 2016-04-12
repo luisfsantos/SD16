@@ -27,7 +27,6 @@ public class TransporterClient implements TransporterPortType {
 	
 	@Override
 	public String ping(String name) {
-		// TODO Auto-generated method stub
 		return port.ping(name);
 	}
 
@@ -35,31 +34,29 @@ public class TransporterClient implements TransporterPortType {
 	public JobView requestJob(String origin, String destination, int price)
 			throws BadLocationFault_Exception, BadPriceFault_Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return port.requestJob(origin, destination, price);
 	}
 
 	@Override
 	public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return port.decideJob(id, accept);
 	}
 
 	@Override
 	public JobView jobStatus(String id) {
 		// TODO Auto-generated method stub
-		return null;
+		return port.jobStatus(id);
 	}
 
 	@Override
 	public List<JobView> listJobs() {
-		// TODO Auto-generated method stub
-		return null;
+		return port.listJobs();
 	}
 
 	@Override
 	public void clearJobs() {
-		// TODO Auto-generated method stub
-		
+		port.clearJobs();	
 	}
 
 
