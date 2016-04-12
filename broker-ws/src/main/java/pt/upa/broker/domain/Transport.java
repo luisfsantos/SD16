@@ -8,6 +8,7 @@ import pt.upa.broker.ws.InvalidPriceFault;
 import pt.upa.broker.ws.InvalidPriceFault_Exception;
 import pt.upa.broker.ws.UnknownLocationFault;
 import pt.upa.broker.ws.UnknownLocationFault_Exception;
+import pt.upa.transporter.ws.JobStateView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 public class Transport  {
@@ -115,6 +116,16 @@ public class Transport  {
 
 	public void setState(TransportState state) {
 		this.state = state;
+	}
+	
+	public void setState(JobStateView jobState) {
+		switch(jobState){
+		case HEADING: 	this.setState(TransportState.HEADING);		break;
+		case ONGOING: 	this.setState(TransportState.ONGOING);		break;
+		case COMPLETED: this.setState(TransportState.COMPLETED);	break;
+		default:
+			break;
+		}
 	}
 
 	public TransporterClient getTransporterEndpoint() {

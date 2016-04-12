@@ -124,13 +124,24 @@ public class BrokerPort implements BrokerPortType {
 
 	@Override
 	public TransportView viewTransport(String id) throws UnknownTransportFault_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		Transport transport = transports.get(id);
+		if (transport == null) {
+			UnknownTransportFault transportFault = new UnknownTransportFault();
+			transportFault.setId(id);
+			throw new UnknownTransportFault_Exception("Cannot find transport", transportFault);
+		}
+		JobView job = transport.getTransporterEndpoint().jobStatus(transport.getJobIdentifier());
+		if (job == null) {
+			UnknownTransportFault transportFault = new UnknownTransportFault();
+			transportFault.setId(transport.getJobIdentifier());
+			throw new UnknownTransportFault_Exception("Cannot find job", transportFault);
+		}
+		transport.setState(job.getJobState());
+		return createTransportView(transport);
 	}
 
 	@Override
 	public List<TransportView> listTransports() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -143,6 +154,17 @@ public class BrokerPort implements BrokerPortType {
 	private int getNextTransportId(){
 		this.transportId++;
 		return this.transportId; 
+	}
+	
+	private TransportView createTransportView(Transport transport){
+		TransportView transportView = new TransportView();
+		transportView.setId(transport.getId());
+		transportView.setOrigin(transport.getOrigin());
+		transportView.setDestination(transport.getDestination());
+		transportView.setPrice(transport.getPrice());
+		transportView.setState(TransportStateView.fromValue(transport.getState().value()));
+		transportView.setTransporterCompany(transport.getTransporterCompany());
+		return transportView;
 	}
 
 }

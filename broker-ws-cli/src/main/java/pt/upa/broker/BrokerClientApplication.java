@@ -1,5 +1,6 @@
 package pt.upa.broker;
 
+import pt.upa.broker.ws.TransportView;
 import pt.upa.broker.ws.cli.BrokerClient;
 
 public class BrokerClientApplication {
@@ -24,6 +25,10 @@ public class BrokerClientApplication {
 			System.out.println(result);
 			String idTransport = port.requestTransport("Lisboa", "Coimbra", 9);
 			System.out.println(idTransport);
+			
+			TransportView trView = port.viewTransport(idTransport);
+			System.out.print("id = " + trView.getId() + " Origin = " + trView.getOrigin());
+			
 		} catch (Exception pfe) {
 			System.out.println("Caught: " + pfe);
 		}
