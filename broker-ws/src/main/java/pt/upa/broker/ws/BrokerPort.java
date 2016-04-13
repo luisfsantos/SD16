@@ -52,6 +52,9 @@ public class BrokerPort implements BrokerPortType {
 		for(Entry <String, TransporterClient> company: transporterCompanies.entrySet() ){
 			ping += company.getValue().ping(name) + "\n";
 		}
+		if (ping.isEmpty()) {
+			ping = "No one is there!";
+		}
 		return ping;
 	}
 

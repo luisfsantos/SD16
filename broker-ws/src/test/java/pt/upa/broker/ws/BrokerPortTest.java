@@ -101,11 +101,14 @@ public class BrokerPortTest {
     		new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
     		new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
     	}};
-    	new MockUDDINaming2Companies();
     }
 
     @After
     public void tearDown() {
+    	
+    }
+    
+    void setUp0Comp() {
     	
     }
 
@@ -114,6 +117,7 @@ public class BrokerPortTest {
 
     @Test
     public void testConstructor( ) {
+    	new MockUDDINaming2Companies();
     	try {
 			new BrokerPort("http://localhost:9090");;
 		} catch (JAXRException e) {
@@ -122,9 +126,23 @@ public class BrokerPortTest {
 		}
     	
     }
+    @Test
+    public void testPingZeroCompanies() {
+    	new MockUDDINaming0Companies();
+    	
+    	String result = "No one is there!";
+    	try {
+			BrokerPort server = new BrokerPort("http://localhost:9090");
+			assertEquals(result, server.ping("ola"));
+		} catch (JAXRException e) {
+			e.printStackTrace();
+		}
+    }
     
     @Test
-    public void testPing() {
+    public void testPingTwoCompanies() {
+    	new MockUDDINaming2Companies();
+    	
     	new Expectations() {{ 
     		transporter1.ping("ola"); result = "UpaTransporterN: ola";
     		transporter2.ping("ola"); result = "UpaTransporterN: ola";
