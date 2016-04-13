@@ -39,9 +39,7 @@ public class BrokerPort implements BrokerPortType {
 		UDDINaming uddiNaming = new UDDINaming(uddiURL);
 		Collection<String> endpointAddresses = uddiNaming.list("UpaTransporter%");
 		
-		for(String endpointAddress: endpointAddresses){
-			// FIXME (remove print)
-			System.out.println(endpointAddress); 
+		for(String endpointAddress: endpointAddresses){ 
 			TransporterClient company = new TransporterClient(endpointAddress);
 			transporterCompanies.put(endpointAddress, company);
 		}
