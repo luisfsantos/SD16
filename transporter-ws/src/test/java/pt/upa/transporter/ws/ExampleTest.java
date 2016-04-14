@@ -1,6 +1,8 @@
 package pt.upa.transporter.ws;
 
 import org.junit.*;
+import pt.upa.transporter.domain.JobState;
+
 import static org.junit.Assert.*;
 
 /**
@@ -108,6 +110,32 @@ public class ExampleTest {
 		JobView jobView = transporterPort.requestJob("Setubal", "Porto", 50);
 		assertNull(jobView);
 	}
+
+	@Test(expected = BadJobFault_Exception.class)
+	public void decideJobNewId() throws BadJobFault_Exception {
+		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
+		transporterPort.decideJob("new id", true);
+	}
+
+	@Test
+	public void decideJobAcceptSuccess() throws BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
+		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
+		String id = transporterPort.requestJob("Porto", "Porto", 50).getJobIdentifier();
+		JobView jobView = transporterPort.decideJob(id, true);
+		assertEquals(JobStateView.ACCEPTED, jobView.getJobState());
+	}
+
+	@Test
+	public void decideJobRejectSuccess() throws BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
+		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
+		String id = transporterPort.requestJob("Porto", "Porto", 50).getJobIdentifier();
+		JobView jobView = transporterPort.decideJob(id, false);
+		assertEquals(JobStateView.REJECTED, jobView.getJobState());
+	}
+
+
+
+
 
 
 
