@@ -81,28 +81,32 @@ public class ExampleTest {
 		assertEquals(JobStateView.PROPOSED, jobView.getJobState());
 	}
 
-	@Test(expected = BadLocationFault_Exception.class)
+	@Test
 	public void requestJobNorthOriginBadLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
 		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		transporterPort.requestJob("Setubal", "Porto", 50);
+		JobView jobView = transporterPort.requestJob("Setubal", "Porto", 50);
+		assertNull(jobView);
 	}
 
-	@Test(expected = BadLocationFault_Exception.class)
+	@Test
 	public void requestJobNorthDestinationBadLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
 		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		transporterPort.requestJob("Porto", "Setubal", 50);
+		JobView jobView = transporterPort.requestJob("Porto", "Setubal", 50);
+		assertNull(jobView);
 	}
 
-	@Test(expected = BadLocationFault_Exception.class)
+	@Test
 	public void requestJobSouthOriginBadLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
 		TransporterPort transporterPort = new TransporterPort("UpaTransporter1");
-		transporterPort.requestJob("Porto", "Setubal", 50);
+		JobView jobView = transporterPort.requestJob("Porto", "Setubal", 50);
+		assertNull(jobView);
 	}
 
-	@Test(expected = BadLocationFault_Exception.class)
+	@Test
 	public void requestJobSouthDestinationBadLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
 		TransporterPort transporterPort = new TransporterPort("UpaTransporter1");
-		transporterPort.requestJob("Setubal", "Porto", 50);
+		JobView jobView = transporterPort.requestJob("Setubal", "Porto", 50);
+		assertNull(jobView);
 	}
 
 
