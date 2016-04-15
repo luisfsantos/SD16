@@ -93,6 +93,15 @@ public class Transport  {
 		
 		return bestJob;
 	}
+	
+	public boolean needToBeUpdated () {
+		if(this.getState() == TransportState.REQUESTED
+				|| this.getState() == TransportState.BUDGETED
+				|| this.getState() == TransportState.FAILED){
+			return false;
+		}
+		return true;
+	}
 
 	public String getId() {
 		return id;

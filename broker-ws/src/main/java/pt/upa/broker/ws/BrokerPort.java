@@ -116,9 +116,7 @@ public class BrokerPort implements BrokerPortType {
 			transportFault.setId(id);
 			throw new UnknownTransportFault_Exception("Cannot find transport", transportFault);
 		}
-		if(transport.getState() == TransportState.REQUESTED
-				|| transport.getState() == TransportState.BUDGETED
-				|| transport.getState() == TransportState.FAILED){
+		if (!transport.needToBeUpdated()){
 			return createTransportView(transport);
 		}
 		
@@ -137,9 +135,7 @@ public class BrokerPort implements BrokerPortType {
 		List<TransportView> transportViews = new ArrayList<TransportView>();
 		for(Entry <String, Transport> transportEntry: transports.entrySet()){
 			Transport transport = transportEntry.getValue();
-			if(transport.getState() == TransportState.REQUESTED
-			|| transport.getState() == TransportState.BUDGETED
-			|| transport.getState() == TransportState.FAILED){
+			if(!transport.needToBeUpdated()){
 				transportViews.add(createTransportView(transport));
 			}
 			else {
