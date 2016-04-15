@@ -19,14 +19,9 @@ public class ListJobsIT extends AbstractTwsIT {
 
 	@After
 	public void tearDown() {
+		transporterClient1.clearJobs();
 	}
 
-	@Test
-	public void test() {
-
-		// assertEquals(expected, actual);
-		// if the assert fails, the test fails
-	}
 
 	@Test
 	public void listJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {

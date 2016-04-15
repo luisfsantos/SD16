@@ -17,12 +17,6 @@ public class PingIT extends AbstractTwsIT {
 	public void tearDown() {
 	}
 
-	@Test
-	public void test() {
-
-		// assertEquals(expected, actual);
-		// if the assert fails, the test fails
-	}
 
 	@Test
 	public void ping() {

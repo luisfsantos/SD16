@@ -25,13 +25,6 @@ public class RequestJobIT extends AbstractTwsIT {
 	}
 
 	@Test
-	public void test() {
-
-		// assertEquals(expected, actual);
-		// if the assert fails, the test fails
-	}
-
-	@Test
 	public void requestJobNull() throws BadLocationFault_Exception, BadPriceFault_Exception {
 		JobView jobView = transporterClient1.requestJob("Porto", "Braga", 150);
 		assertNull(jobView);

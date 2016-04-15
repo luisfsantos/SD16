@@ -15,14 +15,9 @@ public class DecideJobIT extends AbstractTwsIT {
 
 	@After
 	public void tearDown() {
+		transporterClient1.clearJobs();
 	}
 
-	@Test
-	public void test() {
-
-		// assertEquals(expected, actual);
-		// if the assert fails, the test fails
-	}
 
 	@Test(expected = BadJobFault_Exception.class)
 	public void decideJobNewId() throws BadJobFault_Exception {
