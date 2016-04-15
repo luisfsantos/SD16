@@ -193,7 +193,7 @@ public class BrokerPortTest {
     	}};
     	
 		BrokerPort server = new BrokerPort("http://localhost:9090");
-		String id = server.requestTransport(knownCentre, unknownCity, 20);
+		server.requestTransport(knownCentre, unknownCity, 20);
     }
     
     @Test (expected = UnavailableTransportFault_Exception.class)
