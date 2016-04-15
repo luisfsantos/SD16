@@ -2,10 +2,15 @@ package pt.upa.broker.domain;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import pt.upa.broker.ws.InvalidPriceFault;
 import pt.upa.broker.ws.InvalidPriceFault_Exception;
+import pt.upa.broker.ws.UnavailableTransportFault;
+import pt.upa.broker.ws.UnavailableTransportFault_Exception;
+import pt.upa.broker.ws.UnavailableTransportPriceFault;
+import pt.upa.broker.ws.UnavailableTransportPriceFault_Exception;
 import pt.upa.broker.ws.UnknownLocationFault;
 import pt.upa.broker.ws.UnknownLocationFault_Exception;
 import pt.upa.transporter.ws.JobStateView;
@@ -60,6 +65,33 @@ public class Transport  {
 		this.setState(state);
 		this.setTransporterCompany(companyName);
 		this.setTransporterEndpoint(transporterCompany);
+	}
+	
+	
+	public TransporterJob selectBetterJob(List<TransporterJob> jobs, int price_max) throws UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception{
+		if(jobs.isEmpty()){
+			UnavailableTransportFault transportFault = new UnavailableTransportFault();
+			transportFault.setDestination(destination);
+			transportFault.setOrigin(origin);
+			throw new UnavailableTransportFault_Exception("Transport not found", transportFault);
+		}
+		int bestPrice = price_max;
+		TransporterJob bestJob = null;
+		for (TransporterJob transpJob:jobs) {
+			if(transpJob.getJobPrice() < bestPrice){
+				bestPrice = transpJob.getJobPrice();
+				bestJob = transpJob;
+			}
+		}
+		
+		if (bestPrice == price_max){
+			this.setState(TransportState.FAILED);
+			UnavailableTransportPriceFault priceFault = new UnavailableTransportPriceFault();
+			priceFault.setBestPriceFound(bestPrice);
+			throw new UnavailableTransportPriceFault_Exception("Cannot find transporter to current price", priceFault);
+		}
+		
+		return bestJob;
 	}
 
 	public String getId() {

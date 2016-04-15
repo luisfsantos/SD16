@@ -64,8 +64,8 @@ public class BrokerPort implements BrokerPortType {
 			UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 		
 		String transportId = String.valueOf(getNextTransportId());
-		
-		transports.put(transportId, new Transport(origin, destination, price, transportId));
+		Transport transport = new Transport(origin, destination, price, transportId);
+		transports.put(transportId, transport);
 		
 		List<TransporterJob> jobs = new ArrayList<TransporterJob>();
 		for(Entry <String, TransporterClient> company: transporterCompanies.entrySet()) {
@@ -85,41 +85,26 @@ public class BrokerPort implements BrokerPortType {
 			}
 			}
 		
-		if(jobs.isEmpty()){
-			UnavailableTransportFault transportFault = new UnavailableTransportFault();
-			transportFault.setDestination(destination);
-			transportFault.setOrigin(origin);
-			throw new UnavailableTransportFault_Exception("Transport not found", transportFault);
-		}
-		
-		int bestPrice = price;
-		for (TransporterJob transpJob:jobs) {
-			if(transpJob.getJobPrice() < bestPrice){
-				bestPrice = transpJob.getJobPrice();
-				transports.get(transportId).bindTransporter(price, transpJob.getJob().getJobIdentifier(),
-						TransportState.BUDGETED, transpJob.getCompanyName(), transpJob.getCompany());
+		boolean jobBooked = false;
+		while (!jobBooked) {
+			TransporterJob betterJob = transport.selectBetterJob(jobs, price);
+			transport.bindTransporter(betterJob.getJobPrice() , betterJob.getJob().getJobIdentifier() ,
+					TransportState.BUDGETED, betterJob.getCompanyName(), betterJob.getCompanyEndpoint());
+			try {
+				String jobId = betterJob.getJob().getJobIdentifier();
+				betterJob.getCompanyEndpoint().decideJob(jobId, true);
+				jobBooked = true;
+				jobs.remove(betterJob);
+			} catch (BadJobFault_Exception e) {
+				jobs.remove(betterJob);
 			}
 		}
-		if (bestPrice == price){
-			transports.get(transportId).setState(TransportState.FAILED);
-			UnavailableTransportPriceFault priceFault = new UnavailableTransportPriceFault();
-			priceFault.setBestPriceFound(bestPrice);
-			throw new UnavailableTransportPriceFault_Exception("Cannot find transporter to current price", priceFault);
+		transport.setState(TransportState.BOOKED);
+		for (TransporterJob transpJob:jobs){
+			try {
+				transpJob.getCompanyEndpoint().decideJob(transpJob.getJob().getJobIdentifier(), false);
+			} catch (BadJobFault_Exception e) { }
 		}
-		
-		try {
-			String jobId = transports.get(transportId).getJobIdentifier();
-			transports.get(transportId).getTransporterEndpoint().decideJob(jobId, true);
-			transports.get(transportId).setState(TransportState.BOOKED);
-			for (TransporterJob transpJob:jobs){
-				if(!transpJob.getCompany().equals(transports.get(transportId).getTransporterEndpoint())){
-						transpJob.getCompany().decideJob(transpJob.getJob().getJobIdentifier(), false);
-				}
-			}
-		} catch (BadJobFault_Exception e) {
-			// FIXME
-		}
-		
 		return transportId;
 	}
 

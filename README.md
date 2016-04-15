@@ -4,7 +4,7 @@ Grupo de SD 25 - Campus Taguspark
 
 Luis Santos 77900 007lads@gmail.com
 
-Pedro Fernandes 77961 ...
+Pedro Fernandes 77961 pedro.f.fernandes@tecnico.ulisboa.pt
 
 Constantin Zavgorodnii 78030 constantin.zavgorodnii@tecnico.ulisboa.pt
 
@@ -44,18 +44,13 @@ cd T_25-project
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone --branch SD_1 https://github.com/tecnico-distsys/T_25-project
+git clone -b SD_R1 https://github.com/tecnico-distsys/T_25-project/
 ```
 
 [4] Instalar módulos de bibliotecas auxiliares
 
 ```
 cd uddi-naming
-mvn clean install
-```
-
-```
-cd ...
 mvn clean install
 ```
 
@@ -69,7 +64,8 @@ mvn clean install
 ```
 cd transporter-ws
 mvn clean install
-mvn exec:java
+mvn exec:java -Dws.i=1
+mvn exec:java -Dws.i=2
 ```
 
 [2] Construir **cliente** e executar testes

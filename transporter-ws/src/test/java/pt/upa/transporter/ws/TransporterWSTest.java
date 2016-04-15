@@ -15,21 +15,21 @@ import static org.junit.Assert.*;
  *  Invoked by Maven in the "test" life-cycle phase
  *  If necessary, should invoke "mock" remote servers 
  */
-public class ExampleTest {
+public class TransporterWSTest {
 
     // static members
-
+	private static TransporterPort transporterPort2;
 
     // one-time initialization and clean-up
 
     @BeforeClass
     public static void oneTimeSetUp() {
-
+		transporterPort2 = new TransporterPort("UpaTransporter2");
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-
+		transporterPort2 = null;
     }
 
 
@@ -66,21 +66,18 @@ public class ExampleTest {
 
 	@Test
 	public void requestJobNull() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		JobView jobView = transporterPort.requestJob("Porto", "Braga", 150);
+		JobView jobView = transporterPort2.requestJob("Porto", "Braga", 150);
 		assertNull(jobView);
 	}
 
 	@Test(expected = BadPriceFault_Exception.class)
 	public void requestJobBadPrice() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		transporterPort.requestJob("Porto", "Braga", -1);
+		transporterPort2.requestJob("Porto", "Braga", -1);
 	}
 
 	@Test
 	public void requestJobNorthSuccess() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		JobView jobView = transporterPort.requestJob("Porto", "Lisboa", 50);
+		JobView jobView = transporterPort2.requestJob("Porto", "Lisboa", 50);
 		assertEquals("UpaTransporter2", jobView.getCompanyName());
 		assertEquals("Porto", jobView.getJobOrigin());
 		assertEquals("Lisboa", jobView.getJobDestination());
@@ -89,15 +86,13 @@ public class ExampleTest {
 
 	@Test
 	public void requestJobNorthOriginBadLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		JobView jobView = transporterPort.requestJob("Setubal", "Porto", 50);
+		JobView jobView = transporterPort2.requestJob("Setubal", "Porto", 50);
 		assertNull(jobView);
 	}
 
 	@Test
 	public void requestJobNorthDestinationBadLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		JobView jobView = transporterPort.requestJob("Porto", "Setubal", 50);
+		JobView jobView = transporterPort2.requestJob("Porto", "Setubal", 50);
 		assertNull(jobView);
 	}
 
@@ -117,30 +112,26 @@ public class ExampleTest {
 
 	@Test(expected = BadJobFault_Exception.class)
 	public void decideJobNewId() throws BadJobFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		transporterPort.decideJob("new id", true);
+		transporterPort2.decideJob("new id", true);
 	}
 
 	@Test
 	public void decideJobAcceptSuccess() throws BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		String id = transporterPort.requestJob("Porto", "Porto", 50).getJobIdentifier();
-		JobView jobView = transporterPort.decideJob(id, true);
+		String id = transporterPort2.requestJob("Porto", "Porto", 50).getJobIdentifier();
+		JobView jobView = transporterPort2.decideJob(id, true);
 		assertEquals(JobStateView.ACCEPTED, jobView.getJobState());
 	}
 
 	@Test
 	public void decideJobRejectSuccess() throws BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		String id = transporterPort.requestJob("Porto", "Porto", 50).getJobIdentifier();
-		JobView jobView = transporterPort.decideJob(id, false);
+		String id = transporterPort2.requestJob("Porto", "Porto", 50).getJobIdentifier();
+		JobView jobView = transporterPort2.decideJob(id, false);
 		assertEquals(JobStateView.REJECTED, jobView.getJobState());
 	}
 
 	@Test
 	public void jobStatusNull() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		JobView jobView = transporterPort.jobStatus("New id");
+		JobView jobView = transporterPort2.jobStatus("New id");
 		assertNull(jobView);
 	}
 
@@ -156,32 +147,28 @@ public class ExampleTest {
 
 	@Test
 	public void listJobsEmpty() {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		List<JobView> jobViewList = transporterPort.listJobs();
+		List<JobView> jobViewList = transporterPort2.listJobs();
 		assertTrue(jobViewList.isEmpty());
 	}
 
 
 	@Test
 	public void listJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		transporterPort.requestJob("Porto", "Porto", 50);
-		List<JobView> jobViewList = transporterPort.listJobs();
+		transporterPort2.requestJob("Porto", "Porto", 50);
+		List<JobView> jobViewList = transporterPort2.listJobs();
 		assertTrue((!jobViewList.isEmpty()));
 	}
 
 	@Test
 	public void clearJobsEmpty() {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		transporterPort.clearJobs();
+		transporterPort2.clearJobs();
 	}
 
 	@Test
 	public void clearJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
-		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
-		transporterPort.requestJob("Porto", "Porto", 50);
-		transporterPort.clearJobs();
-		assertTrue(transporterPort.listJobs().isEmpty());
+		transporterPort2.requestJob("Porto", "Porto", 50);
+		transporterPort2.clearJobs();
+		assertTrue(transporterPort2.listJobs().isEmpty());
 	}
 
 
