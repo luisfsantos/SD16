@@ -44,18 +44,13 @@ cd T_25-project
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone --branch SD_1 https://github.com/tecnico-distsys/T_25-project
+git clone -b SD_R1 https://github.com/tecnico-distsys/T_25-project/
 ```
 
 [4] Instalar módulos de bibliotecas auxiliares
 
 ```
 cd uddi-naming
-mvn clean install
-```
-
-```
-cd ...
 mvn clean install
 ```
 

@@ -5,10 +5,10 @@ import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.registry.JAXRException;
 import javax.xml.ws.BindingProvider;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.upa.broker.ws.BrokerService;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
@@ -27,7 +27,7 @@ public class TransporterClient implements TransporterPortType {
 		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 	}
 	
-	public TransporterClient(String uddiURL, String companyName) {
+	public TransporterClient(String uddiURL, String companyName) throws JAXRException {
 		UDDINaming uddiNaming = new UDDINaming(uddiURL);
 		String endpointAddress = uddiNaming.lookup(companyName);
 		
