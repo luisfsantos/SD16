@@ -11,21 +11,22 @@ import static org.junit.Assert.*;
  *  Invoked by Maven in the "verify" life-cycle phase
  *  Should invoke "live" remote servers 
  */
-public class AbstractTwsTI {
+public class AbstractTwsIT {
 
     // static members
-	static private TransporterClient transporterClient1;
+	protected static TransporterClient transporterClient1;
 
     // one-time initialization and clean-up
 
     @BeforeClass
     public static void oneTimeSetUp() {
-		TransporterClient transporterClient1 = new TransporterClient("http://localhost:8081/transporter-ws/endpoint");
+		transporterClient1 = new TransporterClient("http://localhost:8081/transporter-ws/endpoint");
+
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-		transporterClient1 = null;
+		//transporterClient1 = null;
     }
 
 

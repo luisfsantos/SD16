@@ -4,10 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Created by lads on 15-04-2016.
- */
-public class DecideJob extends AbstractTwsTI {
+
+public class ClearJobsIT extends AbstractTwsIT {
 
 	@Before
 	public void setUp() {
