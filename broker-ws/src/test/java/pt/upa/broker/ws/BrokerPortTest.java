@@ -107,10 +107,6 @@ public class BrokerPortTest {
     public void tearDown() {
     	
     }
-    
-    void setUp0Comp() {
-    	
-    }
 
 
     // tests

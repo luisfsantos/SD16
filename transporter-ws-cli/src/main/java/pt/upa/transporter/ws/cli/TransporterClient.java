@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.upa.broker.ws.BrokerService;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
@@ -18,6 +20,17 @@ public class TransporterClient implements TransporterPortType {
 	private TransporterPortType port;
 	
 	public TransporterClient(String endpointAddress) {
+		TransporterService service = new TransporterService();
+		port = service.getTransporterPort();
+		BindingProvider bindingProvider = (BindingProvider) port;
+		Map<String, Object> requestContext = bindingProvider.getRequestContext();
+		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+	}
+	
+	public TransporterClient(String uddiURL, String companyName) {
+		UDDINaming uddiNaming = new UDDINaming(uddiURL);
+		String endpointAddress = uddiNaming.lookup(companyName);
+		
 		TransporterService service = new TransporterService();
 		port = service.getTransporterPort();
 		BindingProvider bindingProvider = (BindingProvider) port;
