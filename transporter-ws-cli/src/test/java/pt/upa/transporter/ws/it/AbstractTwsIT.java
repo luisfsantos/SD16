@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
  *  Invoked by Maven in the "verify" life-cycle phase
  *  Should invoke "live" remote servers 
  */
-public class AbstractTwsTI {
+public class AbstractTwsIT {
 
     // static members
 	static private TransporterClient transporterClient1;

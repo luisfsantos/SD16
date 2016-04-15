@@ -4,7 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RequestJob extends AbstractTwsTI {
+
+public class ClearJobsIT extends AbstractTwsIT {
 
 	@Before
 	public void setUp() {
