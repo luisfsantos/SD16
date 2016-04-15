@@ -99,11 +99,15 @@ public class BrokerPort implements BrokerPortType {
 				jobs.remove(betterJob);
 			}
 		}
-		transport.setState(TransportState.BOOKED);
-		for (TransporterJob transpJob:jobs){
-			try {
-				transpJob.getCompanyEndpoint().decideJob(transpJob.getJob().getJobIdentifier(), false);
-			} catch (BadJobFault_Exception e) { }
+		if (jobBooked) {
+			transport.setState(TransportState.BOOKED);
+			for (TransporterJob transpJob:jobs){
+				try {
+					transpJob.getCompanyEndpoint().decideJob(transpJob.getJob().getJobIdentifier(), false);
+				} catch (BadJobFault_Exception e) { }
+			}
+		} else {
+			transport.setState(TransportState.FAILED);
 		}
 		return transportId;
 	}
