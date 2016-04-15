@@ -64,7 +64,8 @@ mvn clean install
 ```
 cd transporter-ws
 mvn clean install
-mvn exec:java
+mvn exec:java -Dws.i=1
+mvn exec:java -Dws.i=2
 ```
 
 [2] Construir **cliente** e executar testes
