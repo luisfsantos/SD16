@@ -4,7 +4,7 @@ Grupo de SD 25 - Campus Taguspark
 
 Luis Santos 77900 007lads@gmail.com
 
-Pedro Fernandes 77961 ...
+Pedro Fernandes 77961 pedro.f.fernandes@tecnico.ulisboa.pt
 
 Constantin Zavgorodnii 78030 constantin.zavgorodnii@tecnico.ulisboa.pt
 
