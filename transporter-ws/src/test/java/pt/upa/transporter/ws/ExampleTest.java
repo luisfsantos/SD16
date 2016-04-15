@@ -4,6 +4,9 @@ import org.junit.*;
 import pt.upa.transporter.domain.Job;
 import pt.upa.transporter.domain.JobState;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -150,6 +153,38 @@ public class ExampleTest {
 		assertEquals(JobStateView.PROPOSED, );
 	}
 	*/
+
+	@Test
+	public void listJobsEmpty() {
+		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
+		List<JobView> jobViewList = transporterPort.listJobs();
+		assertTrue(jobViewList.isEmpty());
+	}
+
+
+	@Test
+	public void listJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
+		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
+		transporterPort.requestJob("Porto", "Porto", 50);
+		List<JobView> jobViewList = transporterPort.listJobs();
+		assertTrue((!jobViewList.isEmpty()));
+	}
+
+	@Test
+	public void clearJobsEmpty() {
+		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
+		transporterPort.clearJobs();
+	}
+
+	@Test
+	public void clearJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
+		TransporterPort transporterPort = new TransporterPort("UpaTransporter2");
+		transporterPort.requestJob("Porto", "Porto", 50);
+		transporterPort.clearJobs();
+		assertTrue(transporterPort.listJobs().isEmpty());
+	}
+
+
 
 
 
