@@ -1,9 +1,12 @@
 package pt.upa.transporter.ws;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.jws.WebService;
@@ -23,6 +26,11 @@ import pt.upa.transporter.domain.SouthJob;
 public class TransporterPort implements TransporterPortType {
 	protected int id_counter;
 	protected Map<String, Job> jobs = new HashMap<String, Job>();
+	private static final Set<String> locations = new HashSet<String>(
+			Arrays.asList(new String[] {"Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança", 
+					"Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda",
+					"Setubal", "Évora", "Portalegre", "Beja", "Faro"}
+			));
 	protected String companyName;
 	protected boolean even;
 	
@@ -48,13 +56,21 @@ public class TransporterPort implements TransporterPortType {
 			throws BadLocationFault_Exception, BadPriceFault_Exception {
 		if (price > 100) {
 			return null;
+		} else if (!locations.contains(origin) || !locations.contains(destination)) {
+			BadLocationFault fault = new BadLocationFault();
+			fault.setLocation(destination);
+			throw new BadLocationFault_Exception("No such destination", fault);
 		} else {
 			String newid = String.valueOf(newID());
 			Job newJob;
-			if (even) {
-				newJob = new NorthJob(origin, destination, companyName, price, newid);
-			} else {
-				newJob = new SouthJob(origin, destination, companyName, price, newid);
+			try {
+				if (even) {
+					newJob = new NorthJob(origin, destination, companyName, price, newid);
+				} else {
+					newJob = new SouthJob(origin, destination, companyName, price, newid);
+				}
+			} catch (BadLocationFault_Exception e) {
+				return null;
 			}
 			this.jobs.put(newid, newJob);
 			return createView(newJob);
