@@ -149,8 +149,8 @@ public class BrokerPort implements BrokerPortType {
 
 	@Override
 	public void clearTransports() {
-		for(Entry <String, Transport> transportEntry: transports.entrySet()){
-			transportEntry.getValue().getTransporterEndpoint().clearJobs();
+		for(Entry <String, TransporterClient> transportEntry: transporterCompanies.entrySet()){
+			transportEntry.getValue().clearJobs();
 		}
 		transports.clear();
 	}

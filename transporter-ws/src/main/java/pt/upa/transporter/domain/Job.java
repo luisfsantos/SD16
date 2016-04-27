@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 
+import pt.upa.transporter.ws.BadJobFault;
+import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
 
@@ -57,7 +59,7 @@ public abstract class Job{
          }
          
          public void schedule() {
-        	 int delay = new Random().nextInt(5000);
+        	 int delay = new Random().nextInt(4000) + 1000;
         	 try {
         		 timer.schedule(new UpdateJob(), delay);
         	 } catch (IllegalStateException e) {
@@ -141,15 +143,27 @@ public abstract class Job{
     }
 
 
-	public void accept() {
-		this.setJobState(JobState.ACCEPTED);
+	public void accept() throws BadJobFault_Exception {
+		if (this.getJobState().equals(JobState.PROPOSED)) {
+			this.setJobState(JobState.ACCEPTED);
+			this.setTimer();
+		} else {
+			BadJobFault fault = new BadJobFault();
+			fault.setId(this.getJobIdentifier());
+			throw new BadJobFault_Exception(this.getJobIdentifier(), null);
+		}
 	}
 
 
 
-	public void reject() {
-		this.setJobState(JobState.REJECTED);
-		
+	public void reject() throws BadJobFault_Exception {
+		if (this.getJobState().equals(JobState.PROPOSED)) {
+			this.setJobState(JobState.REJECTED);
+		} else {
+			BadJobFault fault = new BadJobFault();
+			fault.setId(this.getJobIdentifier());
+			throw new BadJobFault_Exception(this.getJobIdentifier(), null);
+		}
 	}
 
 }
