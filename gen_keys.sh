@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # author: Professores de Sistemas Distribuídos - Instituto Superior Técnico
 ################################################################################
@@ -26,6 +26,18 @@ STORE_FILE="$CA_FOLDER/ca-keystore.jks"
 CA_PEM_FILE="$CA_FOLDER/ca-certificate.pem.txt"
 CA_KEY_FILE="$CA_FOLDER/ca-key.pem.txt"
 
+ENTITIES=('UpaBroker' 'UpaTransporter1');
+
+if [ "$#" -eq 0 ]; then
+	echo ${ENTITIES[@]}
+else
+	echo $1
+	for i in `seq 2 $1`
+	do
+		ENTITIES=("${ENTITIES[@]}" "UpaTransporter$i");
+	done
+	echo ${ENTITIES[@]}
+fi
 ################################################################################
 # 1 - First the CA Certificate is generated
 # This certificate is used to sign other certificates
@@ -54,7 +66,7 @@ keytool -import -keystore $STORE_FILE -file $CA_PEM_FILE  -alias $CA_ALIAS -keyp
 # generated, signed and imported into the entities keystore
 ################################################################################
 
-for server_name in $*
+for server_name in ${ENTITIES[@]}
 do
   D_NAME="CN=$server_name,OU=DEI,O=IST,L=Lisbon,S=Lisbon,C=PT"
   server_folder=$OUTPUT_FOLDER/$server_name
