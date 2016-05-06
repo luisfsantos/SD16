@@ -60,6 +60,9 @@ public class BrokerClientApplication {
 			TransportView trView4 = port.viewTransport(idTransport4);
 			System.out.println("id = " + trView4.getId() + " Origin = " + trView4.getOrigin() + " price = " + trView4.getPrice() );
 			
+			System.out.println("TR COMPANIES =" + trView.getTransporterCompany() +
+					" " + trView2.getTransporterCompany() + " " + trView3.getTransporterCompany() +
+					" " + trView4.getTransporterCompany());
 			
 			System.out.println("WSDL NEW METHOD = " + port.alive());
 			

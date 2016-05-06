@@ -88,8 +88,7 @@ public class BrokerPort implements BrokerPortType {
 		boolean jobBooked = false;
 		while (!jobBooked) {
 			TransporterJob betterJob = transport.selectBetterJob(jobs, price);
-			transport.bindTransporter(betterJob.getJobPrice() , betterJob.getJob().getJobIdentifier() ,
-					TransportState.BUDGETED, betterJob.getCompanyName(), betterJob.getCompanyEndpoint());
+			transport.bindTransporter(betterJob);
 			try {
 				String jobId = betterJob.getJob().getJobIdentifier();
 				betterJob.getCompanyEndpoint().decideJob(jobId, true);
@@ -154,6 +153,10 @@ public class BrokerPort implements BrokerPortType {
 		}
 		transports.clear();
 	}
+	
+	public void setTransportId(int transportId) {
+		this.transportId = transportId;
+	}
 
 	private int getNextTransportId(){
 		this.transportId++;
@@ -173,7 +176,6 @@ public class BrokerPort implements BrokerPortType {
 
 	@Override
 	public boolean alive() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 

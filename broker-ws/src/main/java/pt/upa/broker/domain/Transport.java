@@ -7,6 +7,7 @@ import java.util.Set;
 
 import pt.upa.broker.ws.InvalidPriceFault;
 import pt.upa.broker.ws.InvalidPriceFault_Exception;
+import pt.upa.broker.ws.TransportView;
 import pt.upa.broker.ws.UnavailableTransportFault;
 import pt.upa.broker.ws.UnavailableTransportFault_Exception;
 import pt.upa.broker.ws.UnavailableTransportPriceFault;
@@ -31,6 +32,10 @@ public class Transport  {
 					"Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda",
 					"Setubal", "Évora", "Portalegre", "Beja", "Faro"}
 			));
+	
+	public Transport(TransportView transportView) {
+		
+	}
 
 	public Transport(String origin, String destination, Integer price, String id) 
 			throws InvalidPriceFault_Exception, UnknownLocationFault_Exception {
@@ -57,14 +62,14 @@ public class Transport  {
 		this.state = TransportState.REQUESTED;
 	}
 	
-	public void bindTransporter(Integer price, String jobIdentifier, TransportState state,
-			String companyName, TransporterClient transporterCompany) {
+	
+	public void bindTransporter(TransporterJob tj) {
 		
-		this.setPrice(price);
-		this.setJobIdentifier(jobIdentifier);
-		this.setState(state);
-		this.setTransporterCompany(companyName);
-		this.setTransporterEndpoint(transporterCompany);
+		this.setPrice(tj.getJobPrice());
+		this.setJobIdentifier(tj.getJobIdentifier());
+		this.setState(TransportState.BUDGETED);
+		this.setTransporterCompany(tj.getCompanyName());
+		this.setTransporterEndpoint(tj.getCompanyEndpoint());
 	}
 	
 	
