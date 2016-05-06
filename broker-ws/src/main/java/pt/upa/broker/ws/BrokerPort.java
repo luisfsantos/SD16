@@ -179,6 +179,12 @@ public class BrokerPort implements BrokerPortType {
 		return true;
 	}
 
+	@Override
+	public void updateTransport(TransportData transport) {
+		
+		
+	}
+
 
 
 
