@@ -181,8 +181,14 @@ public class BrokerPort implements BrokerPortType {
 
 	@Override
 	public void updateTransport(TransportData transport) {
-		
-		
+		System.out.println("UPDATE TRANSPORT id ==" + transport.getId());
+		System.out.println("UPDATE TRANSPORT jobId ==" + transport.getJobId());
+		System.out.println("UPDATE TRANSPORT origin ==" + transport.getOrigin());
+		System.out.println("UPDATE TRANSPORT destination ==" + transport.getDestination());
+		System.out.println("UPDATE TRANSPORT price ==" + transport.getPrice());
+		System.out.println("UPDATE TRANSPORT transportCompany ==" + transport.getTransporterCompany());
+		System.out.println("UPDATE TRANSPORT state ==" + TransportState.fromValue(transport.getState().value()));
+		System.out.println("UPDATE TRANSPORT transportEndpoint ==" + transport.getEndpointAddress());
 	}
 
 

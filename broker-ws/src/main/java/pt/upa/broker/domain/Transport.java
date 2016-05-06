@@ -7,6 +7,7 @@ import java.util.Set;
 
 import pt.upa.broker.ws.InvalidPriceFault;
 import pt.upa.broker.ws.InvalidPriceFault_Exception;
+import pt.upa.broker.ws.TransportData;
 import pt.upa.broker.ws.TransportView;
 import pt.upa.broker.ws.UnavailableTransportFault;
 import pt.upa.broker.ws.UnavailableTransportFault_Exception;
@@ -33,8 +34,15 @@ public class Transport  {
 					"Setubal", "Évora", "Portalegre", "Beja", "Faro"}
 			));
 	
-	public Transport(TransportView transportView) {
-		
+	public Transport(TransportData transportData, TransporterClient transporterEndpoint) {
+		this.id = transportData.getId();
+		this.jobIdentifier = transportData.getJobId();
+		this.origin = transportData.getOrigin();
+		this.destination = transportData.getDestination();
+		this.price = transportData.getPrice();
+		this.transporterCompany = transportData.getTransporterCompany();
+		this.state = TransportState.fromValue(transportData.getState().value());
+		this.transporterEndpoint = transporterEndpoint;
 	}
 
 	public Transport(String origin, String destination, Integer price, String id) 

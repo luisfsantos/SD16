@@ -12,6 +12,7 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.ws.BrokerPortType;
 import pt.upa.broker.ws.BrokerService;
 import pt.upa.broker.ws.InvalidPriceFault_Exception;
+import pt.upa.broker.ws.TransportData;
 import pt.upa.broker.ws.TransportView;
 import pt.upa.broker.ws.UnavailableTransportFault_Exception;
 import pt.upa.broker.ws.UnavailableTransportPriceFault_Exception;
@@ -72,6 +73,11 @@ public class BrokerClient implements BrokerPortType {
 	@Override
 	public boolean alive() {
 		return port.alive();
+	}
+	
+	@Override
+	public void updateTransport(TransportData transport) {
+		port.updateTransport(transport);		
 	}
 
 }

@@ -1,6 +1,9 @@
 package pt.upa.broker;
 
 import java.util.List;
+
+import pt.upa.broker.ws.TransportData;
+import pt.upa.broker.ws.TransportStateView;
 import pt.upa.broker.ws.TransportView;
 import pt.upa.broker.ws.cli.BrokerClient;
 
@@ -65,6 +68,19 @@ public class BrokerClientApplication {
 					" " + trView4.getTransporterCompany());
 			
 			System.out.println("WSDL NEW METHOD = " + port.alive());
+			
+			TransportData t = new TransportData();
+			t.setId("a");
+			t.setJobId("b");
+			t.setOrigin("c");
+			t.setDestination("d");
+			t.setPrice(5);
+			t.setTransporterCompany("e");
+			t.setState(TransportStateView.BUDGETED);
+			t.setEndpointAddress("f");
+			
+			port.updateTransport(t);
+			System.out.println("update transport...");
 			
 		} catch (Exception pfe) {
 			System.out.println("Caught: " + pfe);
