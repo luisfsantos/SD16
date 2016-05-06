@@ -6,17 +6,21 @@ public class BrokerApplication {
 		System.out.println(BrokerApplication.class.getSimpleName() + " starting...");
 		
 		// Check arguments
-		if (args.length < 3) {
-			System.err.println("Argument(s) missing!");
-			System.err.printf("Usage: java %s uddiURL wsName wsURL%n", BrokerApplication.class.getName());
+		if (args.length < 4 || (!args[3].equals("0") && !args[3].equals("1")) ) {
+			System.out.println("NUm args = " + args.length);
+			System.out.println(args[3].getClass().getName());
+			System.out.println("Arg 4 = " + args[3]);
+			System.err.println("Missing or invalid argument(s)!");
+			System.err.printf("Usage: java %s uddiURL wsName wsURL brokerNumber%n", BrokerApplication.class.getName());
 			return;
 		}
 		
 		String uddiURL = args[0];
 		String name = args[1];
 		String url = args[2];
+		boolean isPrimary = args[3].equals("0") ? true : false;
 
-		EndpointManager server = new EndpointManager(uddiURL, name, url);
+		EndpointManager server = new EndpointManager(uddiURL, name, url, isPrimary);
 		
 		try {
 			System.out.printf("Starting %s%n", url);

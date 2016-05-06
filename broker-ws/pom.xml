@@ -22,8 +22,11 @@
         <wsdl.filename>broker.2_0.wsdl</wsdl.filename>
 
         <mainclass>pt.upa.broker.BrokerApplication</mainclass>
+        
+        <ws.num>0</ws.num>
+        <ws.port>809${ws.num}</ws.port>
 
-        <ws.url>http://localhost:8080/broker-ws/endpoint</ws.url>
+        <ws.url>http://localhost:${ws.port}/broker-ws/endpoint</ws.url>
 
         <ws.name>UpaBroker</ws.name>
         <uddi.url>http://localhost:9090</uddi.url>
@@ -123,6 +126,7 @@
                         <argument>${uddi.url}</argument>
                         <argument>${ws.name}</argument>
                         <argument>${ws.url}</argument>
+                        <argument>${ws.num}</argument>
                     </arguments>
                 </configuration>
             </plugin>
