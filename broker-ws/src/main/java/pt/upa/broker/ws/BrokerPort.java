@@ -171,4 +171,14 @@ public class BrokerPort implements BrokerPortType {
 		return transportView;
 	}
 
+	@Override
+	public boolean alive() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+
+
+
+
 }

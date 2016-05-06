@@ -67,5 +67,11 @@ public class BrokerClient implements BrokerPortType {
 		port.clearTransports();
 	}
 
+	//  TESTS to new methods
+	
+	@Override
+	public boolean alive() {
+		return port.alive();
+	}
 
 }

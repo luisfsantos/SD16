@@ -61,6 +61,8 @@ public class BrokerClientApplication {
 			System.out.println("id = " + trView4.getId() + " Origin = " + trView4.getOrigin() + " price = " + trView4.getPrice() );
 			
 			
+			System.out.println("WSDL NEW METHOD = " + port.alive());
+			
 		} catch (Exception pfe) {
 			System.out.println("Caught: " + pfe);
 		}

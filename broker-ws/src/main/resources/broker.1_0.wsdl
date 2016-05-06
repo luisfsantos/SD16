@@ -154,6 +154,21 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="UnknownTransportFault" type="tns:UnknownTransportFault" />
+            
+            <!--  new  -->
+			<xs:complexType name="alive">
+                <xs:sequence />
+            </xs:complexType>
+            <xs:element name="alive" type="tns:alive" />
+
+
+            <xs:complexType name="aliveResponse">
+            	<xs:sequence >
+            		<xs:element name="isAlive" type="xs:boolean" minOccurs="1" />
+            	</xs:sequence>
+            </xs:complexType>
+            <xs:element name="aliveResponse" type="tns:aliveResponse" />
+
         
         </xs:schema>
     </types>
@@ -208,6 +223,14 @@
     </message>
     <message name="UnknownTransportFault">
         <part name="fault" element="tns:UnknownTransportFault" />
+    </message>
+    
+    <!-- new  -->
+    <message name="alive">
+        <part name="parameters" element="tns:alive" />
+    </message>
+    <message name="aliveResponse">
+        <part name="parameters" element="tns:aliveResponse" />
     </message>
 
     <!-- Port Type (Interface) -->
@@ -265,6 +288,16 @@
             <output
                 wsam:Action="http://ws.broker.upa.pt/BrokerPort/clearTransportsResponse"
                 message="tns:clearTransportsResponse" />
+        </operation>
+        
+        <!-- new -->
+        <operation name="alive">
+            <input
+                wsam:Action="http://ws.broker.upa.pt/BrokerPort/aliveRequest"
+                message="tns:alive" />
+            <output
+                wsam:Action="http://ws.broker.upa.pt/BrokerPort/aliveResponse"
+                message="tns:aliveResponse" />
         </operation>
     </portType>
 
@@ -331,6 +364,17 @@
         </operation>
 
         <operation name="clearTransports">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
+         <!-- new -->
+        <operation name="alive">
             <soap:operation soapAction="" />
             <input>
                 <soap:body use="literal" />
