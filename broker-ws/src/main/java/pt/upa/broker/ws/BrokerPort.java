@@ -23,7 +23,7 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 
 @WebService(
 	    endpointInterface="pt.upa.broker.ws.BrokerPortType",
-	    wsdlLocation="broker.1_0.wsdl",
+	    wsdlLocation="broker.2_0.wsdl",
 	    name="BrokerWebService",
 	    portName="BrokerPort",
 	    targetNamespace="http://ws.broker.upa.pt/",

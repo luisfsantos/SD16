@@ -25,7 +25,7 @@ public class BrokerClientApplication {
 			
 			String result = port.ping("friend");
 			System.out.println(result);
-			String idTransport = port.requestTransport("Lisboa", "Coimbra", 50);
+			String idTransport = port.requestTransport("Lisboa", "Coimbra", 6);
 			System.out.println(idTransport);
 			String idTransport2 = port.requestTransport("Coimbra", "Lisboa", 7);
 			System.out.println(idTransport2);
@@ -54,7 +54,7 @@ public class BrokerClientApplication {
 			TransportView trView3 = port.viewTransport(idTransport3);
 			System.out.println("id = " + trView3.getId() + " Origin = " + trView3.getOrigin() + " price = " + trView3.getPrice() );
 			
-			String idTransport4 = port.requestTransport("Coimbra", "Lisboa", 100);
+			String idTransport4 = port.requestTransport("Coimbra", "Lisboa", 2);
 			System.out.println(idTransport4);
 			
 			TransportView trView4 = port.viewTransport(idTransport4);
