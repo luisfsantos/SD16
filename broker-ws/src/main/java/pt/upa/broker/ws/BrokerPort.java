@@ -56,6 +56,10 @@ public class BrokerPort implements BrokerPortType {
 	
 	@Override
 	public String ping(String name) {
+		if (isPrimary) {
+			backBroker.alive();						// FIXME
+		}
+		
 		String ping = "";
 		for(Entry <String, TransporterClient> company: transporterCompanies.entrySet() ){
 			ping += company.getValue().ping(name) + "\n";
@@ -188,8 +192,7 @@ public class BrokerPort implements BrokerPortType {
 			System.out.println("Secondary is calling!");
 			/*
 			try {
-			    Thread.sleep(100000);                 //1000 milliseconds is one second.
-			    System.out.println("4 sec");
+			    Thread.sleep(100000);
 			} catch(InterruptedException ex) {
 			    Thread.currentThread().interrupt();
 			}
@@ -199,6 +202,10 @@ public class BrokerPort implements BrokerPortType {
 			System.out.println("Primary is calling!");
 			return true;
 		}
+	}
+
+	public void setPrimary(boolean isPrimary) {
+		this.isPrimary = isPrimary;
 	}
 
 	@Override
