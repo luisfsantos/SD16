@@ -31,11 +31,20 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 	)
 public class BrokerPort implements BrokerPortType {
 	protected int transportId;
+	protected boolean isPrimary;
+	protected BrokerPortType backBroker;
 	protected Map<String, Transport> transports = new HashMap<String, Transport>();
 	protected Map<String, TransporterClient> transporterCompanies = new HashMap<String, TransporterClient>();
 	
 	
-	public BrokerPort (String uddiURL) throws JAXRException {
+	
+	public BrokerPort (String uddiURL, boolean isPrimary) throws JAXRException {
+		this(uddiURL, isPrimary, null);
+	}
+	
+	public BrokerPort (String uddiURL, boolean isPrimary, BrokerPortType backBroker) throws JAXRException {
+		this.isPrimary = isPrimary;
+		this.backBroker = backBroker;
 		UDDINaming uddiNaming = new UDDINaming(uddiURL);
 		Collection<String> endpointAddresses = uddiNaming.list("UpaTransporter%");
 		
@@ -43,7 +52,6 @@ public class BrokerPort implements BrokerPortType {
 			TransporterClient company = new TransporterClient(endpointAddress);
 			transporterCompanies.put(endpointAddress, company);
 		}
-		
 	}
 	
 	@Override
@@ -176,7 +184,21 @@ public class BrokerPort implements BrokerPortType {
 
 	@Override
 	public boolean alive() {
-		return true;
+		if(isPrimary) {
+			System.out.println("Secondary is calling!");
+			/*
+			try {
+			    Thread.sleep(100000);                 //1000 milliseconds is one second.
+			    System.out.println("4 sec");
+			} catch(InterruptedException ex) {
+			    Thread.currentThread().interrupt();
+			}
+			*/
+			return true;
+		} else {
+			System.out.println("Primary is calling!");
+			return true;
+		}
 	}
 
 	@Override

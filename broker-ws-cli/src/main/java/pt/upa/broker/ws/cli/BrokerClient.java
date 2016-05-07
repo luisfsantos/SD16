@@ -68,16 +68,17 @@ public class BrokerClient implements BrokerPortType {
 		port.clearTransports();
 	}
 
-	//  TESTS to new methods
-	
+		
 	@Override
 	public boolean alive() {
-		return port.alive();
+		System.out.println("Access denied");
+		return false;
 	}
 	
 	@Override
 	public void updateTransport(TransportData transport) {
-		port.updateTransport(transport);		
+		System.out.println("Access denied");
+		return;		
 	}
 
 }
