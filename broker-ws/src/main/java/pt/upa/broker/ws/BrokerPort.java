@@ -56,14 +56,19 @@ public class BrokerPort implements BrokerPortType {
 	
 	@Override
 	public String ping(String name) {	
-		String ping = "";
-		for(Entry <String, TransporterClient> company: transporterCompanies.entrySet() ){
-			ping += company.getValue().ping(name) + "\n";
+		if (isPrimary) {
+			String ping = "";
+			for(Entry <String, TransporterClient> company: transporterCompanies.entrySet() ){
+				ping += company.getValue().ping(name) + "\n";
+			}
+			if (ping.isEmpty()) {
+				ping = "No one is there!";
+			}
+			return ping;
+		} else {
+			return name;
 		}
-		if (ping.isEmpty()) {
-			ping = "No one is there!";
-		}
-		return ping;
+		
 	}
 
 	@Override
@@ -117,48 +122,62 @@ public class BrokerPort implements BrokerPortType {
 
 	@Override
 	public TransportView viewTransport(String id) throws UnknownTransportFault_Exception {
-		Transport transport = transports.get(id);
-		if (transport == null) {
-			UnknownTransportFault transportFault = new UnknownTransportFault();
-			transportFault.setId(id);
-			throw new UnknownTransportFault_Exception("Cannot find transport", transportFault);
-		}
-		if (!transport.needToBeUpdated()){
+		if (isPrimary) {
+			Transport transport = transports.get(id);
+			if (transport == null) {
+				UnknownTransportFault transportFault = new UnknownTransportFault();
+				transportFault.setId(id);
+				throw new UnknownTransportFault_Exception("Cannot find transport", transportFault);
+			}
+			if (!transport.needToBeUpdated()){
+				return createTransportView(transport);
+			}
+			
+			JobView job = transport.getTransporterEndpoint().jobStatus(transport.getJobIdentifier());
+			if (job == null) {
+				UnknownTransportFault transportFault = new UnknownTransportFault();
+				transportFault.setId(transport.getJobIdentifier());
+				throw new UnknownTransportFault_Exception("Cannot find job", transportFault);
+			}
+			transport.setState(job.getJobState());
 			return createTransportView(transport);
+			
+		} else {
+			return null;
 		}
-		
-		JobView job = transport.getTransporterEndpoint().jobStatus(transport.getJobIdentifier());
-		if (job == null) {
-			UnknownTransportFault transportFault = new UnknownTransportFault();
-			transportFault.setId(transport.getJobIdentifier());
-			throw new UnknownTransportFault_Exception("Cannot find job", transportFault);
-		}
-		transport.setState(job.getJobState());
-		return createTransportView(transport);
+
 	}
 
 	@Override
 	public List<TransportView> listTransports() {
-		List<TransportView> transportViews = new ArrayList<TransportView>();
-		for(Entry <String, Transport> transportEntry: transports.entrySet()){
-			Transport transport = transportEntry.getValue();
-			if(!transport.needToBeUpdated()){
-				transportViews.add(createTransportView(transport));
+		if (isPrimary) {
+			List<TransportView> transportViews = new ArrayList<TransportView>();
+			for(Entry <String, Transport> transportEntry: transports.entrySet()){
+				Transport transport = transportEntry.getValue();
+				if(!transport.needToBeUpdated()){
+					transportViews.add(createTransportView(transport));
+				}
+				else {
+					JobView job = transport.getTransporterEndpoint().jobStatus(transport.getJobIdentifier());
+					transport.setState(job.getJobState());
+					transportViews.add(createTransportView(transport));
+				}
 			}
-			else {
-				JobView job = transport.getTransporterEndpoint().jobStatus(transport.getJobIdentifier());
-				transport.setState(job.getJobState());
-				transportViews.add(createTransportView(transport));
-			}
+			return transportViews;
+		} else {
+			return null;
 		}
-		return transportViews;
+		
 	}
 
 	@Override
 	public void clearTransports() {
-		for(Entry <String, TransporterClient> transportEntry: transporterCompanies.entrySet()){
-			transportEntry.getValue().clearJobs();
-		}
+		if (isPrimary) {
+			for(Entry <String, TransporterClient> transportEntry: transporterCompanies.entrySet()){
+				transportEntry.getValue().clearJobs();
+			}
+			backBroker.clearTransports();
+		} 		
 		transports.clear();
 	}
 	
@@ -186,13 +205,6 @@ public class BrokerPort implements BrokerPortType {
 	public boolean alive() {
 		if(isPrimary) {
 			System.out.println("Secondary is calling!");
-			/*
-			try {
-			    Thread.sleep(100000);
-			} catch(InterruptedException ex) {
-			    Thread.currentThread().interrupt();
-			}
-			*/
 			return true;
 		} else {
 			System.out.println("Primary is calling!");
