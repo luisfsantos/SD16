@@ -200,6 +200,20 @@ public class BrokerPort implements BrokerPortType {
 		transportView.setTransporterCompany(transport.getTransporterCompany());
 		return transportView;
 	}
+	
+	
+	private TransportData createTransportData(String endpointAddress, Transport transport) {
+		TransportData transportData = new TransportData();
+		transportData.setId(transport.getId());
+		transportData.setJobId(transport.getJobIdentifier());
+		transportData.setOrigin(transport.getOrigin());
+		transportData.setDestination(transport.getDestination());
+		transportData.setPrice(transport.getPrice());
+		transportData.setTransporterCompany(transport.getTransporterCompany());
+		transportData.setState(TransportStateView.fromValue(transport.getState().value()));
+		transportData.setEndpointAddress(endpointAddress);
+		return transportData;
+	}
 
 	@Override
 	public boolean alive() {
