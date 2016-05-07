@@ -39,14 +39,19 @@ public class BrokerClientApplication {
 			TransportView trView2 = port.viewTransport(idTransport2);
 			System.out.println("id = " + trView2.getId() + " Origin = " + trView2.getOrigin() + " price = " + trView2.getPrice() );
 			
+			
+			System.out.println("---sleep 10 sec---");
+			Thread.sleep(10000);		
+			System.out.println("---continue---");
+			
 			List<TransportView> trViews = port.listTransports();
-			System.out.println("All transports views");
+			System.out.println("All transports views:");
 			for(TransportView transportView : trViews ){
 				System.out.println("id = " + transportView.getId() + " Origin = " + transportView.getOrigin() + " price = " + transportView.getPrice());
 			}
 			port.clearTransports();
 			List<TransportView> trViews2 = port.listTransports();
-			System.out.println("Transports deleted");
+			System.out.println("Transports deleted:");
 			for(TransportView transportView : trViews2 ){
 				System.out.println("id = " + transportView.getId() + " Origin = " + transportView.getOrigin() + " price = " + transportView.getPrice());
 			}
@@ -82,6 +87,8 @@ public class BrokerClientApplication {
 			port.updateTransport(t);
 			System.out.println("update transport...");
 			
+		} catch(InterruptedException ex) {
+		    Thread.currentThread().interrupt();
 		} catch (Exception pfe) {
 			System.out.println("Caught: " + pfe);
 		}

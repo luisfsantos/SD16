@@ -55,11 +55,7 @@ public class BrokerPort implements BrokerPortType {
 	}
 	
 	@Override
-	public String ping(String name) {
-		if (isPrimary) {
-			backBroker.alive();						// FIXME
-		}
-		
+	public String ping(String name) {	
 		String ping = "";
 		for(Entry <String, TransporterClient> company: transporterCompanies.entrySet() ){
 			ping += company.getValue().ping(name) + "\n";
