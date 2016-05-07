@@ -8,6 +8,7 @@ import java.util.Set;
 import pt.upa.broker.ws.InvalidPriceFault;
 import pt.upa.broker.ws.InvalidPriceFault_Exception;
 import pt.upa.broker.ws.TransportData;
+import pt.upa.broker.ws.TransportStateView;
 import pt.upa.broker.ws.TransportView;
 import pt.upa.broker.ws.UnavailableTransportFault;
 import pt.upa.broker.ws.UnavailableTransportFault_Exception;
@@ -181,6 +182,20 @@ public class Transport  {
 			break;
 		}
 	}
+	
+	public void setState(TransportStateView tsv) {
+		switch(tsv){
+		case REQUESTED: this.setState(TransportState.REQUESTED); 	break;
+		case BUDGETED: this.setState(TransportState.BUDGETED); 		break;
+		case FAILED: this.setState(TransportState.FAILED); 			break;
+		case BOOKED: this.setState(TransportState.BOOKED); 			break;
+		case HEADING: 	this.setState(TransportState.HEADING);		break;
+		case ONGOING: 	this.setState(TransportState.ONGOING);		break;
+		case COMPLETED: this.setState(TransportState.COMPLETED);	break;
+		default:
+			break;
+		}
+	}
 
 	public TransporterClient getTransporterEndpoint() {
 		return transporterEndpoint;
@@ -188,6 +203,17 @@ public class Transport  {
 
 	public void setTransporterEndpoint(TransporterClient transporterEndpoint) {
 		this.transporterEndpoint = transporterEndpoint;
+	}
+
+	
+	public void update(TransportData transport, TransporterClient transporterClient) {
+		this.setOrigin(transport.getOrigin());
+		this.setDestination(transport.getDestination());
+		this.setState(transport.getState());
+		this.setJobIdentifier(transport.getJobId());
+		this.setPrice(transport.getPrice());
+		this.setTransporterCompany(transport.getTransporterCompany());
+		this.setTransporterEndpoint(transporterClient);
 	}
 
 }

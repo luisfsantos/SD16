@@ -30,7 +30,7 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 	    serviceName="BrokerService"
 	)
 public class BrokerPort implements BrokerPortType {
-	protected int transportId;
+	protected int transportId = 0;
 	protected boolean isPrimary;
 	protected BrokerPortType backBroker;
 	protected Map<String, Transport> transports = new HashMap<String, Transport>();
@@ -230,16 +230,32 @@ public class BrokerPort implements BrokerPortType {
 		this.isPrimary = isPrimary;
 	}
 
+	private void importNewTransport(TransportData transport){
+		Transport transp = new Transport(transport, transporterCompanies.get(transport.getEndpointAddress()));
+		if (this.transportId < Integer.parseInt(transport.getId()) ) {
+			this.setTransportId(Integer.parseInt(transport.getId()));
+		}
+		transports.put(transport.getId(), transp);
+	}
+	
+	
 	@Override
 	public void updateTransport(TransportData transport) {
-		System.out.println("UPDATE TRANSPORT id ==" + transport.getId());
-		System.out.println("UPDATE TRANSPORT jobId ==" + transport.getJobId());
-		System.out.println("UPDATE TRANSPORT origin ==" + transport.getOrigin());
-		System.out.println("UPDATE TRANSPORT destination ==" + transport.getDestination());
-		System.out.println("UPDATE TRANSPORT price ==" + transport.getPrice());
-		System.out.println("UPDATE TRANSPORT transportCompany ==" + transport.getTransporterCompany());
-		System.out.println("UPDATE TRANSPORT state ==" + TransportState.fromValue(transport.getState().value()));
-		System.out.println("UPDATE TRANSPORT transportEndpoint ==" + transport.getEndpointAddress());
+		if (isPrimary) {
+			return;
+		} else {
+			if (Integer.parseInt(transport.getId()) <= this.transportId) {
+				for(Entry <String, Transport> transportEntry: transports.entrySet()) {
+					if ( Integer.parseInt(transportEntry.getValue().getId()) == this.transportId ) {
+						transportEntry.getValue().update(transport, transporterCompanies.get(transport.getEndpointAddress()));
+						return;
+					}
+				}
+				this.importNewTransport(transport);
+			} else {
+				this.importNewTransport(transport);
+			}
+		}
 	}
 
 
