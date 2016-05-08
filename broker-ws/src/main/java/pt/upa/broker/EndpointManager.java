@@ -59,7 +59,7 @@ public class EndpointManager {
 			this.observePrimaryBroker(primBroker);
 			
 			System.out.println("Replcace URL of broker server");
-			port.setPrimary(false);
+			port.setPrimary(true);
 			uddiNaming.rebind(name, url);
 		}
 	}
@@ -71,7 +71,7 @@ public class EndpointManager {
 			while (primaryIsAlive) {
 				primaryIsAlive = primBroker.alive();
 				System.out.println("Primary broker server is alive!");			
-				Thread.sleep(10000);                 
+				Thread.sleep(5000);                 
 			}
 		} catch(InterruptedException ex) {
 		    Thread.currentThread().interrupt();

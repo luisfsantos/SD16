@@ -28,42 +28,71 @@ public class BrokerClientApplication {
 			
 			String result = port.ping("friend");
 			System.out.println(result);
+			
+			System.in.read();
+			
 			String idTransport = port.requestTransport("Lisboa", "Coimbra", 6);
 			System.out.println(idTransport);
+			
+			System.in.read();
+			
 			String idTransport2 = port.requestTransport("Coimbra", "Lisboa", 7);
 			System.out.println(idTransport2);
 			
+			System.in.read();
+			
 			TransportView trView = port.viewTransport(idTransport);
 			System.out.println("id = " + trView.getId() + " Origin = " + trView.getOrigin() + " price = " + trView.getPrice());
+			
+			System.in.read();
 			
 			TransportView trView2 = port.viewTransport(idTransport2);
 			System.out.println("id = " + trView2.getId() + " Origin = " + trView2.getOrigin() + " price = " + trView2.getPrice() );
 			
 			
+			System.in.read();
+			
 			System.out.println("---sleep 10 sec---");
 			Thread.sleep(10000);		
 			System.out.println("---continue---");
+			
+			System.in.read();
 			
 			List<TransportView> trViews = port.listTransports();
 			System.out.println("All transports views:");
 			for(TransportView transportView : trViews ){
 				System.out.println("id = " + transportView.getId() + " Origin = " + transportView.getOrigin() + " price = " + transportView.getPrice());
 			}
+			
+			System.in.read();
+			
 			port.clearTransports();
-			List<TransportView> trViews2 = port.listTransports();
+			
 			System.out.println("Transports deleted:");
+			
+			System.in.read();
+			
+			List<TransportView> trViews2 = port.listTransports();
 			for(TransportView transportView : trViews2 ){
 				System.out.println("id = " + transportView.getId() + " Origin = " + transportView.getOrigin() + " price = " + transportView.getPrice());
 			}
 			
+			System.in.read();
+			
 			String idTransport3 = port.requestTransport("Coimbra", "Lisboa", 8);
 			System.out.println(idTransport3);
+			
+			System.in.read();
 			
 			TransportView trView3 = port.viewTransport(idTransport3);
 			System.out.println("id = " + trView3.getId() + " Origin = " + trView3.getOrigin() + " price = " + trView3.getPrice() );
 			
+			System.in.read();
+			
 			String idTransport4 = port.requestTransport("Coimbra", "Lisboa", 2);
 			System.out.println(idTransport4);
+			
+			System.in.read();
 			
 			TransportView trView4 = port.viewTransport(idTransport4);
 			System.out.println("id = " + trView4.getId() + " Origin = " + trView4.getOrigin() + " price = " + trView4.getPrice() );
@@ -82,7 +111,6 @@ public class BrokerClientApplication {
 			t.setPrice(5);
 			t.setTransporterCompany("e");
 			t.setState(TransportStateView.BUDGETED);
-			t.setEndpointAddress("f");
 			
 			port.updateTransport(t);
 			System.out.println("update transport...");

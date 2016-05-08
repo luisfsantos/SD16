@@ -189,7 +189,6 @@
                     <xs:element name="price" type="xs:int" minOccurs="0" />
                     <xs:element name="transporterCompany" type="xs:string" minOccurs="0" />
                     <xs:element name="state" type="tns:transportStateView" minOccurs="0" />
-                    <xs:element name="endpointAddress" type="xs:string" minOccurs="0" />
                 </xs:sequence>
             </xs:complexType>
 

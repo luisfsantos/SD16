@@ -64,11 +64,14 @@ public class Transport  {
 			unknownLocation.setLocation(destination);
 			throw new UnknownLocationFault_Exception("Unknown location", unknownLocation);
 		}
+		this.id = id;
+		this.jobIdentifier = null;
 		this.origin = origin;
 		this.destination = destination;
 		this.price = price;
-		this.id = id;
+		this.transporterCompany = null;
 		this.state = TransportState.REQUESTED;
+		this.transporterEndpoint = null;
 	}
 	
 	

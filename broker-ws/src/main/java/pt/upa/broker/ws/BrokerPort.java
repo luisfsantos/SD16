@@ -33,6 +33,7 @@ public class BrokerPort implements BrokerPortType {
 	protected int transportId = 0;
 	protected boolean isPrimary;
 	protected BrokerPortType backBroker;
+	protected UDDINaming uddiNaming;
 	protected Map<String, Transport> transports = new HashMap<String, Transport>();
 	protected Map<String, TransporterClient> transporterCompanies = new HashMap<String, TransporterClient>();
 	
@@ -45,7 +46,7 @@ public class BrokerPort implements BrokerPortType {
 	public BrokerPort (String uddiURL, boolean isPrimary, BrokerPortType backBroker) throws JAXRException {
 		this.isPrimary = isPrimary;
 		this.backBroker = backBroker;
-		UDDINaming uddiNaming = new UDDINaming(uddiURL);
+		uddiNaming = new UDDINaming(uddiURL);
 		Collection<String> endpointAddresses = uddiNaming.list("UpaTransporter%");
 		
 		for(String endpointAddress: endpointAddresses){ 
@@ -76,48 +77,60 @@ public class BrokerPort implements BrokerPortType {
 			throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception,
 			UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
 		
-		String transportId = String.valueOf(getNextTransportId());
-		Transport transport = new Transport(origin, destination, price, transportId);
-		transports.put(transportId, transport);
-		
-		List<TransporterJob> jobs = new ArrayList<TransporterJob>();
-		for(Entry <String, TransporterClient> company: transporterCompanies.entrySet()) {
-			try {
-				JobView job = company.getValue().requestJob(origin, destination, price);
-				if (job != null ) {
-					jobs.add(new TransporterJob(job, company.getValue()));
+		if (isPrimary) {
+			String transportId = String.valueOf(getNextTransportId());
+			Transport transport = new Transport(origin, destination, price, transportId);
+			transports.put(transportId, transport);
+			
+			List<TransporterJob> jobs = new ArrayList<TransporterJob>();
+			for(Entry <String, TransporterClient> company: transporterCompanies.entrySet()) {
+				try {
+					JobView job = company.getValue().requestJob(origin, destination, price);
+					if (job != null ) {
+						jobs.add(new TransporterJob(job, company.getValue()));
+					}
+				} catch (BadLocationFault_Exception e) {
+					UnknownLocationFault unknownLocation = new UnknownLocationFault();
+					unknownLocation.setLocation(e.getFaultInfo().getLocation());
+					throw new UnknownLocationFault_Exception("Unknown location", unknownLocation);
+				} catch (BadPriceFault_Exception e) {
+					InvalidPriceFault invalidPrice = new InvalidPriceFault();
+					invalidPrice.setPrice(e.getFaultInfo().getPrice());
+					throw new InvalidPriceFault_Exception("Price cannot be below zero", invalidPrice);
 				}
-			} catch (BadLocationFault_Exception e) {
-				UnknownLocationFault unknownLocation = new UnknownLocationFault();
-				unknownLocation.setLocation(e.getFaultInfo().getLocation());
-				throw new UnknownLocationFault_Exception("Unknown location", unknownLocation);
-			} catch (BadPriceFault_Exception e) {
-				InvalidPriceFault invalidPrice = new InvalidPriceFault();
-				invalidPrice.setPrice(e.getFaultInfo().getPrice());
-				throw new InvalidPriceFault_Exception("Price cannot be below zero", invalidPrice);
+				}
+			
+			boolean jobBooked = false;
+			while (!jobBooked) {
+				TransporterJob betterJob = transport.selectBetterJob(jobs, price);
+				transport.bindTransporter(betterJob);
+				try {
+					String jobId = betterJob.getJob().getJobIdentifier();
+					betterJob.getCompanyEndpoint().decideJob(jobId, true);
+					jobBooked = true;
+					jobs.remove(betterJob);
+				} catch (BadJobFault_Exception e) {
+					jobs.remove(betterJob);
+				}
 			}
+			transport.setState(TransportState.BOOKED);
+			for (TransporterJob transpJob:jobs){
+				try {
+					transpJob.getCompanyEndpoint().decideJob(transpJob.getJob().getJobIdentifier(), false);
+				} catch (BadJobFault_Exception e) { }
 			}
-		
-		boolean jobBooked = false;
-		while (!jobBooked) {
-			TransporterJob betterJob = transport.selectBetterJob(jobs, price);
-			transport.bindTransporter(betterJob);
-			try {
-				String jobId = betterJob.getJob().getJobIdentifier();
-				betterJob.getCompanyEndpoint().decideJob(jobId, true);
-				jobBooked = true;
-				jobs.remove(betterJob);
-			} catch (BadJobFault_Exception e) {
-				jobs.remove(betterJob);
+			
+			if (backBroker != null) {
+				TransportData td = this.createTransportData( transport);
+				System.out.println("Send transport with id " + transport.getId());
+				backBroker.updateTransport(td);
 			}
-		}
-		transport.setState(TransportState.BOOKED);
-		for (TransporterJob transpJob:jobs){
-			try {
-				transpJob.getCompanyEndpoint().decideJob(transpJob.getJob().getJobIdentifier(), false);
-			} catch (BadJobFault_Exception e) { }
-		}
-		return transportId;
+			
+			return transportId;
+			
+		} else {
+			return null;
+		}		
 	}
 
 	@Override
@@ -140,6 +153,13 @@ public class BrokerPort implements BrokerPortType {
 				throw new UnknownTransportFault_Exception("Cannot find job", transportFault);
 			}
 			transport.setState(job.getJobState());
+			
+			if (backBroker != null) {
+				TransportData td = this.createTransportData( transport);
+				System.out.println("Send transport with id " + transport.getId());
+				backBroker.updateTransport(td);
+			}
+			
 			return createTransportView(transport);
 			
 		} else {
@@ -161,6 +181,13 @@ public class BrokerPort implements BrokerPortType {
 					JobView job = transport.getTransporterEndpoint().jobStatus(transport.getJobIdentifier());
 					transport.setState(job.getJobState());
 					transportViews.add(createTransportView(transport));
+					
+					if (backBroker != null) {
+						TransportData td = this.createTransportData( transport);
+						System.out.println("Send transport with id " + transport.getId());
+						backBroker.updateTransport(td);
+					}
+					
 				}
 			}
 			return transportViews;
@@ -176,7 +203,9 @@ public class BrokerPort implements BrokerPortType {
 			for(Entry <String, TransporterClient> transportEntry: transporterCompanies.entrySet()){
 				transportEntry.getValue().clearJobs();
 			}
-			backBroker.clearTransports();
+			if (backBroker != null) {
+				backBroker.clearTransports();
+			}
 		} 		
 		transports.clear();
 	}
@@ -202,7 +231,7 @@ public class BrokerPort implements BrokerPortType {
 	}
 	
 	
-	private TransportData createTransportData(String endpointAddress, Transport transport) {
+	private TransportData createTransportData( Transport transport) {
 		TransportData transportData = new TransportData();
 		transportData.setId(transport.getId());
 		transportData.setJobId(transport.getJobIdentifier());
@@ -211,7 +240,6 @@ public class BrokerPort implements BrokerPortType {
 		transportData.setPrice(transport.getPrice());
 		transportData.setTransporterCompany(transport.getTransporterCompany());
 		transportData.setState(TransportStateView.fromValue(transport.getState().value()));
-		transportData.setEndpointAddress(endpointAddress);
 		return transportData;
 	}
 
@@ -227,11 +255,27 @@ public class BrokerPort implements BrokerPortType {
 	}
 
 	public void setPrimary(boolean isPrimary) {
+		if (isPrimary) {
+			System.out.println("Run as primary server");
+		}
 		this.isPrimary = isPrimary;
 	}
 
-	private void importNewTransport(TransportData transport){
-		Transport transp = new Transport(transport, transporterCompanies.get(transport.getEndpointAddress()));
+	
+	private String discoverCompanyEndpoint(String companyName) {		// FIXME? catch JAXRException
+		try {
+			return uddiNaming.lookup(companyName);
+		} catch (JAXRException e) {
+			System.err.println("Caught JAX-R exception!");
+            e.printStackTrace(System.err);
+            return null;
+		}
+	}
+	
+	private void importNewTransport(TransportData transport) {
+		String companyEndpoint = discoverCompanyEndpoint(transport.getTransporterCompany());
+		TransporterClient company = new TransporterClient(companyEndpoint);
+		Transport transp = new Transport(transport, company);
 		if (this.transportId < Integer.parseInt(transport.getId()) ) {
 			this.setTransportId(Integer.parseInt(transport.getId()));
 		}
@@ -244,15 +288,21 @@ public class BrokerPort implements BrokerPortType {
 		if (isPrimary) {
 			return;
 		} else {
-			if (Integer.parseInt(transport.getId()) <= this.transportId) {
+			int transpId = Integer.parseInt(transport.getId());
+			if (transpId <= this.transportId) {
 				for(Entry <String, Transport> transportEntry: transports.entrySet()) {
-					if ( Integer.parseInt(transportEntry.getValue().getId()) == this.transportId ) {
-						transportEntry.getValue().update(transport, transporterCompanies.get(transport.getEndpointAddress()));
+					if ( Integer.parseInt(transportEntry.getValue().getId()) == transpId ) {
+						String companyEndpoint = discoverCompanyEndpoint(transport.getTransporterCompany());
+						TransporterClient company = new TransporterClient(companyEndpoint);
+						transportEntry.getValue().update(transport, company);
+						System.out.println("Update transport with id " + transpId);
 						return;
 					}
 				}
+				System.out.println("[id < currId] Add new transport with id " + transpId);
 				this.importNewTransport(transport);
 			} else {
+				System.out.println("Add new transport with id " + transpId);
 				this.importNewTransport(transport);
 			}
 		}
