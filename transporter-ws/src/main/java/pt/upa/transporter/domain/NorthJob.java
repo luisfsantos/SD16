@@ -28,10 +28,10 @@ public class NorthJob extends Job {
 	@Override
 	protected int evaluate(int max_price) {
 		if (max_price <= 10) {
-			return ThreadLocalRandom.current().nextInt(1, max_price + 1);
+			return ThreadLocalRandom.current().nextInt(0, max_price);
 		} else {
 			if ((max_price & 1) == 0) {
-				return ThreadLocalRandom.current().nextInt(1, max_price + 1);
+				return ThreadLocalRandom.current().nextInt(1, max_price);
 			} else {
 				return ThreadLocalRandom.current().nextInt(max_price, 101);
 			}

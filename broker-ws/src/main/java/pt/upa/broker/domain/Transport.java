@@ -79,6 +79,7 @@ public class Transport  {
 		TransporterJob bestJob = null;
 		for (TransporterJob transpJob:jobs) {
 			if(transpJob.getJobPrice() < bestPrice){
+				System.out.println("BEST = " + bestPrice);
 				bestPrice = transpJob.getJobPrice();
 				bestJob = transpJob;
 			}

@@ -88,7 +88,6 @@ public class TransporterPort implements TransporterPortType {
 			Job job = this.jobs.get(id);
 			if (accept) {
 				job.accept();
-				job.setTimer();
 				return createView(job);
 			} else {
 				job.reject();
