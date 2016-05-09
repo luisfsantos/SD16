@@ -124,7 +124,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         return key;
     }
 
-    /** auxiliary method to get PrivateKey from jks*/
+    /** auxiliary method to get PublicKey from jks*/
     private static PublicKey getPublicKey(String alias) throws Exception {
         KeyStore ks = loadKeyStore();
         PublicKey key;
