@@ -1,13 +1,21 @@
 package pt.upa.ws.handler;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TimeZone;
 
 import static javafx.scene.input.KeyCode.K;
 
@@ -19,7 +27,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     public static final String COMPANY_NAME_PROPERTY = "company.name";
     private static final String JKSPASSWORD = "ins3cur3";
     private static final String PRIVKEYPASS = "1nsecure";
-    private static String COMPANY_NAME;
+    private static String COMPANY_NAME; //On outbound is me, on inbound is sender
 
     @Override
     public Set<QName> getHeaders() {
@@ -31,11 +39,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         COMPANY_NAME = (String) smc.get(COMPANY_NAME_PROPERTY);
         Boolean outboundElement = (Boolean) smc
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        try {
-            getPrivateKey();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         try {
             if (outboundElement.booleanValue()) {
                 handleOutBound(smc);
@@ -70,14 +74,48 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPPart sp = msg.getSOAPPart();
         SOAPEnvelope se = sp.getEnvelope();
 
+        //Make the created date
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String createdDate = df.format(Calendar.getInstance().getTime());
+
+
+        // initialize the message digest
+        byte [] digest = null;
+
         // add header
         SOAPHeader sh = se.getHeader();
         if (sh == null)
             sh = se.addHeader();
 
+        // make the bytearray for the digest
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            byte[] createdDateBytes = createdDate.getBytes("UTF-8");
+            baos.write(DatatypeConverter.parseBase64Binary(se.toString()));
+            baos.write(createdDateBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            digest = makeDigitalSignature(baos.toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // add header element (name, namespace prefix, namespace)
-        Name name = se.createName("auth", "a", "http://ws.handler.upa.pt");
-        SOAPHeaderElement element = sh.addHeaderElement(name);
+        Name name = se.createName("Security", "auth", "http://ws.handler.upa.pt");
+        SOAPHeaderElement messageDigest = sh.addHeaderElement(name);
+        messageDigest.addTextNode(DatatypeConverter.printBase64Binary(digest));
+
+        name = se.createName("SenderName", "auth", "http://ws.handler.upa.pt");
+        SOAPHeaderElement senderName = sh.addHeaderElement(name);
+        senderName.addTextNode(COMPANY_NAME);
+
+        name = se.createName("CreatedDate", "auth", "http://ws.handler.upa.pt");
+        SOAPHeaderElement dateCreated = sh.addHeaderElement(name);
+        dateCreated.addTextNode(createdDate);
 
     }
 

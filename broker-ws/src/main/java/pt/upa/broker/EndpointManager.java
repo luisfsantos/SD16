@@ -2,10 +2,15 @@ package pt.upa.broker;
 
 
 import javax.xml.registry.JAXRException;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.handler.MessageContext;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.ws.BrokerPort;
+import pt.upa.ws.handler.AuthenticationHandler;
+
+import java.util.Map;
 
 public class EndpointManager {
 	private String uddiURL;
@@ -26,6 +31,7 @@ public class EndpointManager {
 		endpoint.publish(url);
 		uddiNaming = new UDDINaming(uddiURL);
 		uddiNaming.rebind(name, url);
+
 	}
 	
 	public void stop() throws JAXRException {

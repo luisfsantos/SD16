@@ -58,12 +58,14 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public String ping(String name) {
+		setMessageContext(); //FIXME
 		return companyName + ": " + name;
 	}
 
 	@Override
 	public JobView requestJob(String origin, String destination, int price)
 			throws BadLocationFault_Exception, BadPriceFault_Exception {
+		setMessageContext();
 		if (price > 100) {
 			return null;
 		} else if (!locations.contains(origin) || !locations.contains(destination)) {
@@ -90,6 +92,7 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
+		setMessageContext();
 		if(!this.jobs.containsKey(id)) {
 			BadJobFault fault = new BadJobFault();
 			fault.setId(id);
@@ -108,6 +111,7 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public JobView jobStatus(String id) {
+		setMessageContext();
 		Job job = this.jobs.get(id);
 		if (job != null) {
 			return createView(job);
@@ -117,6 +121,7 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public List<JobView> listJobs() {
+		setMessageContext();
 		List<JobView> listJobs = new ArrayList<JobView>();
 		for(Entry<String, Job> mapEntry : jobs.entrySet()) {
 			listJobs.add(createView(mapEntry.getValue()));
@@ -126,6 +131,7 @@ public class TransporterPort implements TransporterPortType {
 
 	@Override
 	public void clearJobs() {
+		setMessageContext();
 		this.jobs.clear();
 	}
 	
@@ -143,6 +149,11 @@ public class TransporterPort implements TransporterPortType {
 			viewJob.setJobPrice(job.getJobPrice());
 			viewJob.setJobState(JobStateView.fromValue(job.getJobState().value()));
 			return viewJob;
+	}
+
+	private void setMessageContext() {
+		MessageContext context = webServiceContext.getMessageContext();
+		context.put(AuthenticationHandler.COMPANY_NAME_PROPERTY, companyName);
 	}
 
 }

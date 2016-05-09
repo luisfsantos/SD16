@@ -30,6 +30,7 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 	    serviceName="BrokerService"
 	)
 public class BrokerPort implements BrokerPortType {
+	private static final String name = "UpaBroker";
 	protected int transportId;
 	protected Map<String, Transport> transports = new HashMap<String, Transport>();
 	protected Map<String, TransporterClient> transporterCompanies = new HashMap<String, TransporterClient>();
@@ -40,7 +41,7 @@ public class BrokerPort implements BrokerPortType {
 		Collection<String> endpointAddresses = uddiNaming.list("UpaTransporter%");
 		
 		for(String endpointAddress: endpointAddresses){ 
-			TransporterClient company = new TransporterClient(endpointAddress);
+			TransporterClient company = new TransporterClient(endpointAddress, name);
 			transporterCompanies.put(endpointAddress, company);
 		}
 		

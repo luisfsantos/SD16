@@ -1,10 +1,14 @@
 package pt.upa.transporter;
 
 import javax.xml.registry.JAXRException;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.ws.TransporterPort;
+import pt.upa.ws.handler.AuthenticationHandler;
+
+import java.util.Map;
 
 public class EndpointManager {
 	private String uddiURL;
