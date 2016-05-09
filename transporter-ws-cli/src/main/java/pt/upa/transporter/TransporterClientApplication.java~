@@ -13,7 +13,7 @@ public class TransporterClientApplication {
 			return;
 		}
 
-		
+		/*
 		TransporterClient port = new TransporterClient(args[0]);
 		System.out.println(port.ping("testing..."));
 		String jobid = port.requestJob("Leiria", "Lisboa", 20).getJobIdentifier();
@@ -80,7 +80,7 @@ public class TransporterClientApplication {
 		}
 		System.out.println(port.jobStatus(jobid).getJobState().value());
 		System.out.println(port.requestJob("Leiria", "Lisboa", 21).getJobPrice());
-		
+		*/
 		
 
 	}

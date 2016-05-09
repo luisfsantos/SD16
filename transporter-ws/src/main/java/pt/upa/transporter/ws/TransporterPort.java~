@@ -1,24 +1,16 @@
 package pt.upa.transporter.ws;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.annotation.Resource;
 import javax.jws.WebService;
-import javax.jws.HandlerChain;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.handler.MessageContext;
 
 import pt.upa.transporter.domain.Job;
 import pt.upa.transporter.domain.NorthJob;
 import pt.upa.transporter.domain.SouthJob;
-import pt.upa.ws.handler.AuthenticationHandler;
 
 @WebService(
 	    endpointInterface="pt.upa.transporter.ws.TransporterPortType",
@@ -28,25 +20,15 @@ import pt.upa.ws.handler.AuthenticationHandler;
 	    targetNamespace="http://ws.transporter.upa.pt/",
 	    serviceName="TransporterService"
 	)
-
-@HandlerChain(file = "/upa_handler-chain.xml")
 public class TransporterPort implements TransporterPortType {
 	protected int id_counter;
 	protected Map<String, Job> jobs = new HashMap<String, Job>();
-	private static final Set<String> locations = new HashSet<String>(
-			Arrays.asList(new String[] {"Porto", "Braga", "Viana do Castelo", "Vila Real", "Bragança", 
-					"Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda",
-					"Setubal", "Évora", "Portalegre", "Beja", "Faro"}
-			));
 	protected String companyName;
 	protected boolean even;
-
-	@Resource
-	private WebServiceContext webServiceContext;
 	
 	public TransporterPort (String name) {
 		this.companyName = name;
-
+		
 		if (name != null && name.length() != 0) {
 			String transportNumber = name.substring("UpaTransporter".length());
 			int upatransporter = Integer.parseInt(transportNumber);
@@ -66,21 +48,13 @@ public class TransporterPort implements TransporterPortType {
 			throws BadLocationFault_Exception, BadPriceFault_Exception {
 		if (price > 100) {
 			return null;
-		} else if (!locations.contains(origin) || !locations.contains(destination)) {
-			BadLocationFault fault = new BadLocationFault();
-			fault.setLocation(destination);
-			throw new BadLocationFault_Exception("No such destination", fault);
 		} else {
 			String newid = String.valueOf(newID());
 			Job newJob;
-			try {
-				if (even) {
-					newJob = new NorthJob(origin, destination, companyName, price, newid);
-				} else {
-					newJob = new SouthJob(origin, destination, companyName, price, newid);
-				}
-			} catch (BadLocationFault_Exception e) {
-				return null;
+			if (even) {
+				newJob = new NorthJob(origin, destination, companyName, price, newid);
+			} else {
+				newJob = new SouthJob(origin, destination, companyName, price, newid);
 			}
 			this.jobs.put(newid, newJob);
 			return createView(newJob);
@@ -98,6 +72,7 @@ public class TransporterPort implements TransporterPortType {
 			Job job = this.jobs.get(id);
 			if (accept) {
 				job.accept();
+				job.setTimer();
 				return createView(job);
 			} else {
 				job.reject();
