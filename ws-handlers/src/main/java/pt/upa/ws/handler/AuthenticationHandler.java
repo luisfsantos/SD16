@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.*;
+import java.security.cert.Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,7 +28,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     public static final String COMPANY_NAME_PROPERTY = "company.name";
     private static final String JKSPASSWORD = "ins3cur3";
     private static final String PRIVKEYPASS = "1nsecure";
-    private static String COMPANY_NAME; //On outbound is me, on inbound is sender
+    private static String COMPANY_NAME;
 
     @Override
     public Set<QName> getHeaders() {
@@ -36,15 +37,18 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
     @Override
     public boolean handleMessage(SOAPMessageContext smc) {
-        COMPANY_NAME = (String) smc.get(COMPANY_NAME_PROPERTY);
+        if (COMPANY_NAME == null) {
+            COMPANY_NAME = (String) smc.get(COMPANY_NAME_PROPERTY);
+        }
+
         Boolean outboundElement = (Boolean) smc
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
         try {
             if (outboundElement.booleanValue()) {
-                handleOutBound(smc);
+                return handleOutBound(smc);
             } else {
-                handleInBound(smc);
+                return handleInBound(smc);
             }
         } catch (Exception e) {
             System.out.print("Caught exception in handleMessage: ");
@@ -66,7 +70,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
     }
 
-    private void handleOutBound(SOAPMessageContext smc) throws SOAPException {
+    private boolean handleOutBound(SOAPMessageContext smc) throws SOAPException {
         System.out.println("Writing header in outbound SOAP message...");
 
         // get SOAP envelope
@@ -81,14 +85,82 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
 
         // initialize the message digest
-        byte [] digest = null;
+        byte [] signedDigest = null;
 
         // add header
         SOAPHeader sh = se.getHeader();
         if (sh == null)
             sh = se.addHeader();
 
-        // make the bytearray for the digest
+        try {
+            signedDigest = makeDigitalSignature(getMessageDigest(se, createdDate).toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // add header element (name, namespace prefix, namespace)
+        Name name = se.createName("Security", "auth", "http://ws.handler.upa.pt");
+        SOAPHeaderElement element = sh.addHeaderElement(name);
+
+        SOAPElement messageDigest = element.addChildElement("MessageDigest", "auth");
+        messageDigest.addTextNode(DatatypeConverter.printBase64Binary(signedDigest));
+
+        SOAPElement senderName = element.addChildElement("SenderName", "auth");
+        senderName.addTextNode(COMPANY_NAME);
+
+        SOAPElement dateCreated = element.addChildElement("CreatedDate", "auth");
+        dateCreated.addTextNode(createdDate);
+
+        return true;
+
+    }
+
+    private boolean handleInBound(SOAPMessageContext smc) throws SOAPException {
+        System.out.println("Reading header in inbound SOAP message...");
+
+        // get SOAP envelope header
+        SOAPMessage msg = smc.getMessage();
+        SOAPPart sp = msg.getSOAPPart();
+        SOAPEnvelope se = sp.getEnvelope();
+        SOAPHeader sh = se.getHeader();
+        sh.detachNode();
+        // check header
+        if (sh == null) {
+            System.out.println("Header not found.");
+            return false;
+        }
+
+        // get first header element
+        Name name = se.createName("Security", "auth", "http://ws.handler.upa.pt");
+        Iterator it = sh.getChildElements(name);
+        // check header element
+        if (!it.hasNext()) {
+            System.out.println("Header element not found.");
+            return false;
+        }
+        SOAPElement Security = (SOAPElement) it.next();
+        it = Security.getChildElements();
+
+        SOAPElement messageDigest = (SOAPElement) it.next();
+        SOAPElement senderName = (SOAPElement) it.next();
+        SOAPElement createdDate = (SOAPElement) it.next();
+
+        String date = createdDate.getValue();
+
+        try {
+            return verifyDigitalSignature(DatatypeConverter.parseBase64Binary(messageDigest.getValue()),
+                    getMessageDigest(se, date).toByteArray(), senderName.getValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return true;
+
+    }
+
+    // make the byte array for the digest
+    private static ByteArrayOutputStream getMessageDigest(SOAPEnvelope se, String createdDate) {
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             byte[] createdDateBytes = createdDate.getBytes("UTF-8");
@@ -97,60 +169,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        try {
-            digest = makeDigitalSignature(baos.toByteArray());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // add header element (name, namespace prefix, namespace)
-        Name name = se.createName("Security", "auth", "http://ws.handler.upa.pt");
-        SOAPHeaderElement messageDigest = sh.addHeaderElement(name);
-        messageDigest.addTextNode(DatatypeConverter.printBase64Binary(digest));
-
-        name = se.createName("SenderName", "auth", "http://ws.handler.upa.pt");
-        SOAPHeaderElement senderName = sh.addHeaderElement(name);
-        senderName.addTextNode(COMPANY_NAME);
-
-        name = se.createName("CreatedDate", "auth", "http://ws.handler.upa.pt");
-        SOAPHeaderElement dateCreated = sh.addHeaderElement(name);
-        dateCreated.addTextNode(createdDate);
-
-    }
-
-    private void handleInBound(SOAPMessageContext smc) throws SOAPException {
-        System.out.println("Reading header in inbound SOAP message...");
-
-        // get SOAP envelope header
-        SOAPMessage msg = smc.getMessage();
-        SOAPPart sp = msg.getSOAPPart();
-        SOAPEnvelope se = sp.getEnvelope();
-        SOAPHeader sh = se.getHeader();
-
-        // check header
-        if (sh == null) {
-            System.out.println("Header not found.");
-            return;
-        }
-
-        // get first header element
-        Name name = se.createName("myHeader", "d", "http://demo");
-        Iterator it = sh.getChildElements(name);
-        // check header element
-        if (!it.hasNext()) {
-            System.out.println("Header element not found.");
-            return;
-        }
-        SOAPElement element = (SOAPElement) it.next();
-
-        // get header element value
-        String valueString = element.getValue();
-        int value = Integer.parseInt(valueString);
-
-        // print received header
-        System.out.println("Header value is " + value);
-
+        return baos;
     }
 
     /** auxiliary method to get PrivateKey from jks*/
@@ -165,12 +184,18 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     /** auxiliary method to get PublicKey from jks*/
     private static PublicKey getPublicKey(String alias) throws Exception {
         KeyStore ks = loadKeyStore();
-        PublicKey key;
+        PublicKey key = null;
         try {
-             key = (PublicKey) ks.getKey(alias.toLowerCase(), PRIVKEYPASS.toCharArray());
+            Certificate cert = ks.getCertificate(alias.toLowerCase());
+            if (cert != null) {
+                key = cert.getPublicKey();
+            } else {
+                //caPort.requestCertificate(alias);
+
+            }
+
         } catch (KeyStoreException e) {
-            //Fixme
-            key = null;
+            e.printStackTrace();
         }
 
         return key;
