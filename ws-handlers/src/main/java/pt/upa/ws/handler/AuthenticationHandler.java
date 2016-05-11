@@ -218,7 +218,6 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         KeyStore ks = KeyStore.getInstance("JKS");
         java.io.FileInputStream fis = null;
         try {
-            System.out.println("\n---------------------------------\n"+JKS_PATH+"\n---------------------------------\n");
             fis = new java.io.FileInputStream(JKS_PATH);
             ks.load(fis, JKSPASSWORD.toCharArray());
         } finally {
