@@ -8,27 +8,38 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TimeZone;
-
-import static javafx.scene.input.KeyCode.K;
+import java.util.*;
 
 
 /**
  * Created by lads on 09-05-2016.
  */
 public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
-    public static final String COMPANY_NAME_PROPERTY = "company.name";
-    private static final String JKSPASSWORD = "ins3cur3";
-    private static final String PRIVKEYPASS = "1nsecure";
+    private static final String PROPERTIES_FILE = "auth.properties";
+    private static Properties PROPS;
+    private static String JKSPASSWORD;
+    private static String PRIVKEYPASS;
     private static String COMPANY_NAME;
+    private static String JKS_PATH;
+
+    private void init() {
+        PROPS = new Properties();
+        try {
+            PROPS.load(getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE));
+        } catch (IOException e) {
+            final String msg = String.format("Could not load properties file {}", PROPERTIES_FILE);
+            System.out.println(msg);
+        }
+        COMPANY_NAME = PROPS.getProperty("COMPANY.NAME");
+        JKS_PATH = PROPS.getProperty("JKS.PATH");
+        JKSPASSWORD = PROPS.getProperty("JKS.PASSWORD");
+        PRIVKEYPASS = PROPS.getProperty("JKS.PRIVKEY");
+    }
+
 
     @Override
     public Set<QName> getHeaders() {
@@ -38,7 +49,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     @Override
     public boolean handleMessage(SOAPMessageContext smc) {
         if (COMPANY_NAME == null) {
-            COMPANY_NAME = (String) smc.get(COMPANY_NAME_PROPERTY);
+            this.init();
         }
 
         Boolean outboundElement = (Boolean) smc
@@ -78,6 +89,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPPart sp = msg.getSOAPPart();
         SOAPEnvelope se = sp.getEnvelope();
 
+        System.out.println("Generating TimeStamp");
         //Make the created date
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -92,6 +104,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         if (sh == null)
             sh = se.addHeader();
 
+        System.out.println("Digitally signing the necessary information");
         try {
             signedDigest = makeDigitalSignature(getMessageDigest(se, createdDate).toByteArray());
         } catch (Exception e) {
@@ -205,7 +218,8 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         KeyStore ks = KeyStore.getInstance("JKS");
         java.io.FileInputStream fis = null;
         try {
-            fis = new java.io.FileInputStream("../keys/" + COMPANY_NAME + "/" + COMPANY_NAME + ".jks");
+            System.out.println("\n---------------------------------\n"+JKS_PATH+"\n---------------------------------\n");
+            fis = new java.io.FileInputStream(JKS_PATH);
             ks.load(fis, JKSPASSWORD.toCharArray());
         } finally {
             if (fis != null) {
@@ -247,10 +261,4 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         }
     }
 
-    private static byte[] getDigest(byte[] plainBytes) throws NoSuchAlgorithmException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
-        messageDigest.update(plainBytes);
-        byte[] digest = messageDigest.digest();
-        return digest;
-    }
 }

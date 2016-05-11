@@ -18,7 +18,14 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     public boolean handleMessage(SOAPMessageContext smc) {
+
+        System.out.println("\n");
+        System.out.println("------------------------------");
+        System.out.println("LOGGING MESSAGE: \n");
         logToSystemOut(smc);
+        System.out.println("\nFINISHED LOGGING!! \n");
+        System.out.println("------------------------------");
+        System.out.println("\n");
         return true;
     }
 

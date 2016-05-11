@@ -25,7 +25,6 @@ public class TransporterClient implements TransporterPortType {
 		port = service.getTransporterPort();
 		BindingProvider bindingProvider = (BindingProvider) port;
 		Map<String, Object> requestContext = bindingProvider.getRequestContext();
-		requestContext.put(AuthenticationHandler.COMPANY_NAME_PROPERTY, servingCompany);
 		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 	}
 	
@@ -35,9 +34,9 @@ public class TransporterClient implements TransporterPortType {
 		
 		TransporterService service = new TransporterService();
 		port = service.getTransporterPort();
+
 		BindingProvider bindingProvider = (BindingProvider) port;
 		Map<String, Object> requestContext = bindingProvider.getRequestContext();
-		requestContext.put(AuthenticationHandler.COMPANY_NAME_PROPERTY, servingCompany);
 		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 	}
 	
