@@ -1,5 +1,7 @@
 package pt.upa.ws.handler;
 
+import org.omg.SendingContext.RunTime;
+
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
@@ -12,7 +14,10 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.RunnableFuture;
 
 
 /**
@@ -25,8 +30,10 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     private static String PRIVKEYPASS;
     private static String COMPANY_NAME;
     private static String JKS_PATH;
+    private Map<String, Set<UUID>> invalidUUIDs;
 
     private void init() {
+        invalidUUIDs = new HashMap<>();
         PROPS = new Properties();
         try {
             PROPS.load(getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE));
@@ -62,9 +69,13 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
                 return handleInBound(smc);
             }
         } catch (Exception e) {
-            System.out.print("Caught exception in handleMessage: ");
-            System.out.println(e);
-            System.out.println("Continue normal processing...");
+            if (e instanceof RuntimeException) {
+                throw new RuntimeException(e.getMessage());
+            } else {
+                System.out.print("Caught exception in handleMessage: ");
+                System.out.println(e);
+                System.out.println("Continue normal processing...");
+            }
         }
 
         return true;
@@ -90,10 +101,13 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPEnvelope se = sp.getEnvelope();
 
         System.out.println("Generating TimeStamp");
+
         //Make the created date
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String createdDate = df.format(Calendar.getInstance().getTime());
+        String createdDate = OffsetDateTime.now(ZoneId.of("UTC")).toString();
+
+        //Make UUID for messages
+        UUID uuid = UUID.randomUUID();
+        String uuidString = uuid.toString();
 
 
         // initialize the message digest
@@ -106,7 +120,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
         System.out.println("Digitally signing the necessary information");
         try {
-            signedDigest = makeDigitalSignature(getMessageDigest(se, createdDate).toByteArray());
+            signedDigest = makeDigitalSignature(getMessageDigest(se, createdDate, uuidString).toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,13 +138,16 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPElement dateCreated = element.addChildElement("CreatedDate", "auth");
         dateCreated.addTextNode(createdDate);
 
+        SOAPElement UniqueID = element.addChildElement("UUID", "auth");
+        UniqueID.addTextNode(uuidString);
+
         return true;
 
     }
 
     private boolean handleInBound(SOAPMessageContext smc) throws SOAPException {
         System.out.println("Reading header in inbound SOAP message...");
-
+        OffsetDateTime dateTimeReceived = OffsetDateTime.now();
         // get SOAP envelope header
         SOAPMessage msg = smc.getMessage();
         SOAPPart sp = msg.getSOAPPart();
@@ -157,12 +174,24 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPElement messageDigest = (SOAPElement) it.next();
         SOAPElement senderName = (SOAPElement) it.next();
         SOAPElement createdDate = (SOAPElement) it.next();
+        SOAPElement UniqueID = (SOAPElement) it.next();
 
-        String date = createdDate.getValue();
+        String dateTimeSent = createdDate.getValue();
+
+        if (!validDate(dateTimeSent, dateTimeReceived)) {
+            throw new RuntimeException("There is a security issue.");
+        }
+
+        String uuidString = UniqueID.getValue();
+
+        if (!validUUID(uuidString, senderName.getValue())) {
+            System.out.println("UUID ISSUE");
+            throw new RuntimeException("There is a security issue.");
+        }
 
         try {
             return verifyDigitalSignature(DatatypeConverter.parseBase64Binary(messageDigest.getValue()),
-                    getMessageDigest(se, date).toByteArray(), senderName.getValue());
+                    getMessageDigest(se, dateTimeSent, uuidString).toByteArray(), senderName.getValue());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -171,14 +200,41 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
     }
 
+    private boolean validDate(String date, OffsetDateTime dateTimeReceived) {
+        long acceptedInterval = 2;
+        OffsetDateTime dateTimeSent = OffsetDateTime.parse(date);
+        return dateTimeSent.isAfter(dateTimeReceived.minusSeconds(acceptedInterval)) &&
+                dateTimeSent.isBefore(dateTimeReceived.plusSeconds(acceptedInterval));
+    }
+
+    private boolean validUUID(String uuidString, String senderAlias) {
+        try {
+            System.out.println("<uuidString>"+uuidString);
+            System.out.println("<senderAlias>"+senderAlias);
+            UUID uuid = UUID.fromString(uuidString);
+            if (invalidUUIDs.containsKey(senderAlias)) {
+                return invalidUUIDs.get(senderAlias).add(uuid);
+            } else {
+                Set<UUID> Synset = Collections.synchronizedSet(new HashSet<>());
+                return invalidUUIDs.put(senderAlias, Synset).add(uuid);
+            }
+        } catch (RuntimeException e) {
+            System.out.println(e);
+            e.printStackTrace();
+            return true;
+        }
+    }
+
     // make the byte array for the digest
-    private static ByteArrayOutputStream getMessageDigest(SOAPEnvelope se, String createdDate) {
+    private static ByteArrayOutputStream getMessageDigest(SOAPEnvelope se, String createdDate, String uuid) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             byte[] createdDateBytes = createdDate.getBytes("UTF-8");
+            byte[] uuidBytes = uuid.getBytes("UTF-8");
             baos.write(DatatypeConverter.parseBase64Binary(se.toString()));
             baos.write(createdDateBytes);
+            baos.write(uuidBytes);
         } catch (IOException e) {
             e.printStackTrace();
         }
