@@ -30,10 +30,9 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     private static String PRIVKEYPASS;
     private static String COMPANY_NAME;
     private static String JKS_PATH;
-    private Map<String, Set<UUID>> invalidUUIDs;
+    private Map<String, Set<UUID>> invalidUUIDs = new HashMap<>();;
 
     private void init() {
-        invalidUUIDs = new HashMap<>();
         PROPS = new Properties();
         try {
             PROPS.load(getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE));
@@ -208,20 +207,13 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private boolean validUUID(String uuidString, String senderAlias) {
-        try {
-            System.out.println("<uuidString>"+uuidString);
-            System.out.println("<senderAlias>"+senderAlias);
-            UUID uuid = UUID.fromString(uuidString);
-            if (invalidUUIDs.containsKey(senderAlias)) {
-                return invalidUUIDs.get(senderAlias).add(uuid);
-            } else {
-                Set<UUID> Synset = Collections.synchronizedSet(new HashSet<>());
-                return invalidUUIDs.put(senderAlias, Synset).add(uuid);
-            }
-        } catch (RuntimeException e) {
-            System.out.println(e);
-            e.printStackTrace();
-            return true;
+        UUID uuid = UUID.fromString(uuidString);
+        if (invalidUUIDs.containsKey(senderAlias)) {
+            return invalidUUIDs.get(senderAlias).add(uuid);
+        } else {
+            Set<UUID> Synset = Collections.synchronizedSet(new HashSet<>());
+            invalidUUIDs.put(senderAlias, Synset);
+            return invalidUUIDs.get(senderAlias).add(uuid);
         }
     }
 
