@@ -1,23 +1,25 @@
 package pt.upa.ws.handler;
 
-import org.omg.SendingContext.RunTime;
 
+import pt.upa.ca.ws.cli.CAClient;
+
+import java.security.cert.CertificateException;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.Certificate;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.security.cert.CertificateFactory;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.RunnableFuture;
 
 
 /**
@@ -30,7 +32,9 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     private static String PRIVKEYPASS;
     private static String COMPANY_NAME;
     private static String JKS_PATH;
-    private Map<String, Set<UUID>> invalidUUIDs = new HashMap<>();;
+    private static KeyStore keyStore;
+    private Map<String, Set<UUID>> invalidUUIDs = new HashMap<>();
+    private static CAClient caPort = new CAClient("http://localhost:8069/ca-ws/endpoint");
 
     private void init() {
         PROPS = new Properties();
@@ -44,6 +48,13 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         JKS_PATH = PROPS.getProperty("JKS.PATH");
         JKSPASSWORD = PROPS.getProperty("JKS.PASSWORD");
         PRIVKEYPASS = PROPS.getProperty("JKS.PRIVKEY");
+        try {
+            keyStore = loadKeyStore();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -119,7 +130,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
         System.out.println("Digitally signing the necessary information");
         try {
-            signedDigest = makeDigitalSignature(getMessageDigest(se, createdDate, uuidString).toByteArray());
+            signedDigest = makeDigitalSignature(getBytesToSign(se, createdDate, uuidString).toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -144,7 +155,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
     }
 
-    private boolean handleInBound(SOAPMessageContext smc) throws SOAPException {
+    private boolean handleInBound(SOAPMessageContext smc) throws Exception {
         System.out.println("Reading header in inbound SOAP message...");
         OffsetDateTime dateTimeReceived = OffsetDateTime.now();
         // get SOAP envelope header
@@ -188,14 +199,8 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
             throw new RuntimeException("There is a security issue.");
         }
 
-        try {
-            return verifyDigitalSignature(DatatypeConverter.parseBase64Binary(messageDigest.getValue()),
-                    getMessageDigest(se, dateTimeSent, uuidString).toByteArray(), senderName.getValue());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        return true;
+        return verifyDigitalSignature(DatatypeConverter.parseBase64Binary(messageDigest.getValue()),
+                    getBytesToSign(se, dateTimeSent, uuidString).toByteArray(), senderName.getValue());
 
     }
 
@@ -218,7 +223,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     // make the byte array for the digest
-    private static ByteArrayOutputStream getMessageDigest(SOAPEnvelope se, String createdDate, String uuid) {
+    private static ByteArrayOutputStream getBytesToSign(SOAPEnvelope se, String createdDate, String uuid) {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
@@ -235,24 +240,27 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
 
     /** auxiliary method to get PrivateKey from jks*/
     private static PrivateKey getPrivateKey() throws Exception {
-        KeyStore ks = loadKeyStore();
-
-        PrivateKey key = (PrivateKey)ks.getKey(COMPANY_NAME.toLowerCase(), PRIVKEYPASS.toCharArray());
+        PrivateKey key = (PrivateKey)keyStore.getKey(COMPANY_NAME.toLowerCase(), PRIVKEYPASS.toCharArray());
 
         return key;
     }
 
     /** auxiliary method to get PublicKey from jks*/
     private static PublicKey getPublicKey(String alias) throws Exception {
-        KeyStore ks = loadKeyStore();
         PublicKey key = null;
         try {
-            Certificate cert = ks.getCertificate(alias.toLowerCase());
+            Certificate cert = keyStore.getCertificate(alias.toLowerCase());
             if (cert != null) {
                 key = cert.getPublicKey();
             } else {
-                //caPort.requestCertificate(alias);
-
+                byte[] certBytes = caPort.requestCertificate(alias.toLowerCase());
+                cert = CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(certBytes));
+                if(!trustedCertificate(cert)) {
+                    throw new RuntimeException("Security error");
+                } else {
+                    keyStore.setCertificateEntry(alias.toLowerCase(), cert);
+                    key = cert.getPublicKey();
+                }
             }
 
         } catch (KeyStoreException e) {
@@ -262,12 +270,32 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         return key;
     }
 
-    private static KeyStore loadKeyStore() throws Exception {
+    public static boolean trustedCertificate(Certificate certificate) {
+        String TrustedAlias = "ca";
+        try {
+            certificate.verify(keyStore.getCertificate(TrustedAlias).getPublicKey());
+        } catch (InvalidKeyException | KeyStoreException | CertificateException | NoSuchAlgorithmException
+                | NoSuchProviderException | SignatureException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    private static KeyStore loadKeyStore() throws KeyStoreException, IOException {
         KeyStore ks = KeyStore.getInstance("JKS");
         java.io.FileInputStream fis = null;
         try {
             fis = new java.io.FileInputStream(JKS_PATH);
             ks.load(fis, JKSPASSWORD.toCharArray());
+        } catch (java.security.cert.CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if (fis != null) {
                 fis.close();
