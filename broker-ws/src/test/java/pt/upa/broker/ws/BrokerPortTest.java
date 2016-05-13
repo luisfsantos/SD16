@@ -97,8 +97,8 @@ public class BrokerPortTest {
     	
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     		transporter1.ping("ola"); result = "UpaTransporterN: ola";
     		transporter2.ping("ola"); result = "UpaTransporterN: ola";
     	}};
@@ -121,7 +121,7 @@ public class BrokerPortTest {
     public void requestTransportOneCompany() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list1;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
     		transporter1.requestJob(knownCentre, knownCentre, 20); result = job1;
     		job1.getJobPrice(); result = 19;
     	}};
@@ -136,8 +136,8 @@ public class BrokerPortTest {
     public void requestTransportTwoCompanyNoValidPrice() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     		transporter1.requestJob(knownCentre, knownCentre, 20); result = job1;
     		transporter2.requestJob(knownCentre, knownCentre, 20); result = job2;
     		job1.getJobPrice(); result = 21;
@@ -152,8 +152,8 @@ public class BrokerPortTest {
     public void requestTransportTwoCompanyOneValidPrice() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     		transporter1.requestJob(knownCentre, knownCentre, 20); result = job1;
     		transporter2.requestJob(knownCentre, knownCentre, 20); result = job2;
     		job1.getJobPrice(); result = 21;
@@ -170,8 +170,8 @@ public class BrokerPortTest {
     public void requestTransportTwoCompanyTwoValidPrice() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     		transporter1.requestJob(knownCentre, knownCentre, 20); result = job1;
     		transporter2.requestJob(knownCentre, knownCentre, 20); result = job2;
     		job1.getJobPrice(); result = 19;
@@ -188,8 +188,8 @@ public class BrokerPortTest {
     public void requestTransportTwoCompanyNoLocation() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     	}};
     	
 		BrokerPort server = new BrokerPort("http://localhost:9090");
@@ -200,8 +200,8 @@ public class BrokerPortTest {
     public void requestTransportTwoCompanyNoOperation() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     		transporter1.requestJob(knownCentre, knownNorth, 20); result = null;
     		transporter2.requestJob(knownCentre, knownNorth, 20); result = null;
     	}};
@@ -215,8 +215,8 @@ public class BrokerPortTest {
     public void viewTransportNonExistant() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     	}};
     	
 		BrokerPort server = new BrokerPort("http://localhost:9090");
@@ -227,8 +227,8 @@ public class BrokerPortTest {
     public void viewTransportExistant() throws UnavailableTransportFault_Exception, InvalidPriceFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, JAXRException, UnknownTransportFault_Exception {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list2;
-        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint"); result = transporter1;
-        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint"); result = transporter2;
+        	new TransporterClient("http://localhost:8080/transporter-ws/endpoint", "UpaBroker"); result = transporter1;
+        	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
         	transporter1.requestJob(knownCentre, knownNorth, 20); result = job1;
     		transporter2.requestJob(knownCentre, knownNorth, 20); result = job1;
     		job1.getJobPrice(); result = 15;

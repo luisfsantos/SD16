@@ -15,11 +15,12 @@ import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.TransporterPortType;
 import pt.upa.transporter.ws.TransporterService;
+import pt.upa.ws.handler.AuthenticationHandler;
 
 public class TransporterClient implements TransporterPortType {
 	private TransporterPortType port;
 	
-	public TransporterClient(String endpointAddress) {
+	public TransporterClient(String endpointAddress, String servingCompany) {
 		TransporterService service = new TransporterService();
 		port = service.getTransporterPort();
 		BindingProvider bindingProvider = (BindingProvider) port;
@@ -27,12 +28,13 @@ public class TransporterClient implements TransporterPortType {
 		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 	}
 	
-	public TransporterClient(String uddiURL, String companyName) throws JAXRException {
+	public TransporterClient(String uddiURL, String companyName, String servingCompany) throws JAXRException {
 		UDDINaming uddiNaming = new UDDINaming(uddiURL);
 		String endpointAddress = uddiNaming.lookup(companyName);
 		
 		TransporterService service = new TransporterService();
 		port = service.getTransporterPort();
+
 		BindingProvider bindingProvider = (BindingProvider) port;
 		Map<String, Object> requestContext = bindingProvider.getRequestContext();
 		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);

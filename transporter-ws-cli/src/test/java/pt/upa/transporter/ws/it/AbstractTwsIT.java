@@ -20,7 +20,7 @@ public class AbstractTwsIT {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-		transporterClient1 = new TransporterClient("http://localhost:8081/transporter-ws/endpoint");
+		transporterClient1 = new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker");
 
     }
 

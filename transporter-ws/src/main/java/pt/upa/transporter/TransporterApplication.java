@@ -1,6 +1,10 @@
 package pt.upa.transporter;
 
+import java.io.IOException;
+import java.util.Properties;
+
 public class TransporterApplication {
+
 
 	public static void main(String[] args) throws Exception {
 		System.out.println(TransporterApplication.class.getSimpleName() + " starting...");
@@ -10,6 +14,7 @@ public class TransporterApplication {
 			System.err.printf("Usage: java %s uddiURL wsName wsURL%n", TransporterApplication.class.getName());
 			return;
 		}
+
 
 		String uddiURL = args[0];
 		String name = args[1];
