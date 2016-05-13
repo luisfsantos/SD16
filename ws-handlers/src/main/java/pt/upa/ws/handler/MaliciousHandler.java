@@ -67,21 +67,19 @@ public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 
 	public boolean handleInBound(SOAPMessageContext smc) throws SOAPException { //FIXME
-		SOAPEnvelope msg = null; //get the SOAP Message envelope
-		try {
-			msg = smc.getMessage().getSOAPPart().getEnvelope();
-		} catch (SOAPException e) {
-			e.printStackTrace();
-		}
+		SOAPEnvelope msg = smc.getMessage().getSOAPPart().getEnvelope();
 
-		SOAPBody body = null;
-		try {
-			body = msg.getBody();
-		} catch (SOAPException e) {
-			e.printStackTrace();
+		Name jobPrice = msg.createName("price");
+		SOAPBody body = msg.getBody();
+		SOAPElement priceEle = (SOAPElement) body.getChildElements(jobPrice).next();
+
+		if (Integer.parseInt(priceEle.getValue()) == 666) {
+			priceEle.setValue("1000000");
 		}
+		/*
 		Name name = smc.getMessage().getSOAPPart().getEnvelope().createName("Ataque");
 		body.addChildElement(name);
+		*/
 		return true;
 	}
 
