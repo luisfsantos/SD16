@@ -1,5 +1,8 @@
 package pt.upa.ws.handler;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -18,20 +21,38 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     public boolean handleMessage(SOAPMessageContext smc) {
-/*
-        System.out.println("\n");
-        System.out.println("------------------------------");
-        System.out.println("LOGGING MESSAGE: \n");
-        logToSystemOut(smc);
-        System.out.println("\nFINISHED LOGGING!! \n");
-        System.out.println("------------------------------");
-        System.out.println("\n");
-    */
+
+    	PrintStream out = null;
+		try {
+			out = new PrintStream(new FileOutputStream("log.txt", true));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (out != null) {
+			out.println("\n");
+	        out.println("------------------------------");
+	        out.println("LOGGING MESSAGE: \n");
+	        logToSystemOut(smc, out);
+	        out.println("\nFINISHED LOGGING!! \n");
+	        out.println("------------------------------");
+	        out.println("\n");
+		}    
         return true;
     }
 
     public boolean handleFault(SOAPMessageContext smc) {
-        logToSystemOut(smc);
+    	PrintStream out = null;
+		try {
+			out = new PrintStream(new FileOutputStream("log.txt", true));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (out != null) {
+			 logToSystemOut(smc, out);
+		}
+       
         return true;
     }
 
@@ -45,22 +66,22 @@ public class LoggingHandler implements SOAPHandler<SOAPMessageContext> {
      * and output the message. The writeTo() method can throw SOAPException or
      * IOException
      */
-    private void logToSystemOut(SOAPMessageContext smc) {
+    private void logToSystemOut(SOAPMessageContext smc, PrintStream out) {
         Boolean outbound = (Boolean) smc
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
         if (outbound) {
-            System.out.println("Outbound SOAP message:");
+            out.println("Outbound SOAP message:");
         } else {
-            System.out.println("Inbound SOAP message:");
+            out.println("Inbound SOAP message:");
         }
 
         SOAPMessage message = smc.getMessage();
         try {
-            message.writeTo(System.out);
-            System.out.println(); // just to add a newline to output
+            message.writeTo(out);
+            out.println(); // just to add a newline to output
         } catch (Exception e) {
-            System.out.printf("Exception in handler: %s%n", e);
+            out.printf("Exception in handler: %s%n", e);
         }
     }
 
