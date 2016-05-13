@@ -106,7 +106,9 @@ mvn clean install
 ```
 cd broker-ws
 mvn clean install
-mvn exec:java
+
+mvn exec:java -Dws.num=0
+mvn exec:java -Dws.num=1
 ```
 
 

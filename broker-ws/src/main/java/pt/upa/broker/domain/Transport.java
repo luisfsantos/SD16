@@ -7,6 +7,9 @@ import java.util.Set;
 
 import pt.upa.broker.ws.InvalidPriceFault;
 import pt.upa.broker.ws.InvalidPriceFault_Exception;
+import pt.upa.broker.ws.TransportData;
+import pt.upa.broker.ws.TransportStateView;
+import pt.upa.broker.ws.TransportView;
 import pt.upa.broker.ws.UnavailableTransportFault;
 import pt.upa.broker.ws.UnavailableTransportFault_Exception;
 import pt.upa.broker.ws.UnavailableTransportPriceFault;
@@ -31,6 +34,17 @@ public class Transport  {
 					"Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda",
 					"Setubal", "Évora", "Portalegre", "Beja", "Faro"}
 			));
+	
+	public Transport(TransportData transportData, TransporterClient transporterEndpoint) {
+		this.id = transportData.getId();
+		this.jobIdentifier = transportData.getJobId();
+		this.origin = transportData.getOrigin();
+		this.destination = transportData.getDestination();
+		this.price = transportData.getPrice();
+		this.transporterCompany = transportData.getTransporterCompany();
+		this.state = TransportState.fromValue(transportData.getState().value());
+		this.transporterEndpoint = transporterEndpoint;
+	}
 
 	public Transport(String origin, String destination, Integer price, String id) 
 			throws InvalidPriceFault_Exception, UnknownLocationFault_Exception {
@@ -50,21 +64,24 @@ public class Transport  {
 			unknownLocation.setLocation(destination);
 			throw new UnknownLocationFault_Exception("Unknown location", unknownLocation);
 		}
+		this.id = id;
+		this.jobIdentifier = null;
 		this.origin = origin;
 		this.destination = destination;
 		this.price = price;
-		this.id = id;
+		this.transporterCompany = null;
 		this.state = TransportState.REQUESTED;
+		this.transporterEndpoint = null;
 	}
 	
-	public void bindTransporter(Integer price, String jobIdentifier, TransportState state,
-			String companyName, TransporterClient transporterCompany) {
+	
+	public void bindTransporter(TransporterJob tj) {
 		
-		this.setPrice(price);
-		this.setJobIdentifier(jobIdentifier);
-		this.setState(state);
-		this.setTransporterCompany(companyName);
-		this.setTransporterEndpoint(transporterCompany);
+		this.setPrice(tj.getJobPrice());
+		this.setJobIdentifier(tj.getJobIdentifier());
+		this.setState(TransportState.BUDGETED);
+		this.setTransporterCompany(tj.getCompanyName());
+		this.setTransporterEndpoint(tj.getCompanyEndpoint());
 	}
 	
 	
@@ -79,7 +96,6 @@ public class Transport  {
 		TransporterJob bestJob = null;
 		for (TransporterJob transpJob:jobs) {
 			if(transpJob.getJobPrice() < bestPrice){
-				System.out.println("BEST = " + bestPrice);
 				bestPrice = transpJob.getJobPrice();
 				bestJob = transpJob;
 			}
@@ -169,6 +185,20 @@ public class Transport  {
 			break;
 		}
 	}
+	
+	public void setState(TransportStateView tsv) {
+		switch(tsv){
+		case REQUESTED: this.setState(TransportState.REQUESTED); 	break;
+		case BUDGETED: this.setState(TransportState.BUDGETED); 		break;
+		case FAILED: this.setState(TransportState.FAILED); 			break;
+		case BOOKED: this.setState(TransportState.BOOKED); 			break;
+		case HEADING: 	this.setState(TransportState.HEADING);		break;
+		case ONGOING: 	this.setState(TransportState.ONGOING);		break;
+		case COMPLETED: this.setState(TransportState.COMPLETED);	break;
+		default:
+			break;
+		}
+	}
 
 	public TransporterClient getTransporterEndpoint() {
 		return transporterEndpoint;
@@ -176,6 +206,17 @@ public class Transport  {
 
 	public void setTransporterEndpoint(TransporterClient transporterEndpoint) {
 		this.transporterEndpoint = transporterEndpoint;
+	}
+
+	
+	public void update(TransportData transport, TransporterClient transporterClient) {
+		this.setOrigin(transport.getOrigin());
+		this.setDestination(transport.getDestination());
+		this.setState(transport.getState());
+		this.setJobIdentifier(transport.getJobId());
+		this.setPrice(transport.getPrice());
+		this.setTransporterCompany(transport.getTransporterCompany());
+		this.setTransporterEndpoint(transporterClient);
 	}
 
 }
