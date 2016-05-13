@@ -263,7 +263,7 @@ public class BrokerPort implements BrokerPortType {
 	}
 
 
-	private String discoverCompanyEndpoint(String companyName) {		// FIXME? catch JAXRException
+	private String discoverCompanyEndpoint(String companyName) {		
 		try {
 			return uddiNaming.lookup(companyName);
 		} catch (JAXRException e) {

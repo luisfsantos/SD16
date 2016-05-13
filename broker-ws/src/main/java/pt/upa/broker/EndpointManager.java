@@ -48,6 +48,7 @@ public class EndpointManager {
 			endpoint = Endpoint.create(port);
 			endpoint.publish(url);
 
+			System.out.printf("Publishing '%s' to UDDI at %s%n", name, uddiURL);
 			uddiNaming.rebind(name, url);
 		} else {
 			BrokerPort port = new BrokerPort(uddiURL, false);

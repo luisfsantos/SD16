@@ -256,7 +256,7 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(stringResult));
         String message = stringResult.toString();
 
-        return message.getBytes("UTF-8");
+        return DatatypeConverter.parseBase64Binary(message);
     }
 
 
