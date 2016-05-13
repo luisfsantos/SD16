@@ -44,7 +44,7 @@ cd T_25-project
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone -b SD_R1 https://github.com/tecnico-distsys/T_25-project/
+git clone -b SD_R2 https://github.com/tecnico-distsys/T_25-project/
 
 cd T_25-project
 ```
