@@ -3,17 +3,18 @@ package pt.upa.ws.handler;
 
 import pt.upa.ca.ws.cli.CAClient;
 
+import java.io.*;
 import java.security.cert.CertificateException;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -231,14 +232,29 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
         try {
             byte[] createdDateBytes = createdDate.getBytes("UTF-8");
             byte[] uuidBytes = uuid.getBytes("UTF-8");
-            baos.write(DatatypeConverter.parseBase64Binary(se.toString()));
+            baos.write(SOAPElementToByteArray(se.getBody()));
             baos.write(createdDateBytes);
             baos.write(uuidBytes);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (SOAPException e) {
+            e.printStackTrace();
         }
         return baos;
     }
+
+    private static byte[] SOAPElementToByteArray(SOAPElement elem) throws TransformerException, UnsupportedEncodingException {
+
+        DOMSource source = new DOMSource(elem);
+        StringWriter stringResult = new StringWriter();
+        TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(stringResult));
+        String message = stringResult.toString();
+
+        return message.getBytes("UTF-8");
+    }
+
 
     /** auxiliary method to get PrivateKey from jks*/
     private static PrivateKey getPrivateKey() throws Exception {
