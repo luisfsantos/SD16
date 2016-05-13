@@ -263,7 +263,7 @@ public class BrokerPort implements BrokerPortType {
 	}
 
 
-	private String discoverCompanyEndpoint(String companyName) {		// FIXME? catch JAXRException
+	private String discoverCompanyEndpoint(String companyName) {		
 		try {
 			return uddiNaming.lookup(companyName);
 		} catch (JAXRException e) {
@@ -275,7 +275,7 @@ public class BrokerPort implements BrokerPortType {
 
 	private void importNewTransport(TransportData transport) {
 		String companyEndpoint = discoverCompanyEndpoint(transport.getTransporterCompany());
-		TransporterClient company = new TransporterClient(companyEndpoint);
+		TransporterClient company = new TransporterClient(companyEndpoint, name);
 		Transport transp = new Transport(transport, company);
 		if (this.transportId < Integer.parseInt(transport.getId()) ) {
 			this.setTransportId(Integer.parseInt(transport.getId()));
@@ -294,7 +294,7 @@ public class BrokerPort implements BrokerPortType {
 				for(Entry <String, Transport> transportEntry: transports.entrySet()) {
 					if ( Integer.parseInt(transportEntry.getValue().getId()) == transpId ) {
 						String companyEndpoint = discoverCompanyEndpoint(transport.getTransporterCompany());
-						TransporterClient company = new TransporterClient(companyEndpoint);
+						TransporterClient company = new TransporterClient(companyEndpoint, name);
 						transportEntry.getValue().update(transport, company);
 						System.out.println("Update transport with id " + transpId);
 						return;

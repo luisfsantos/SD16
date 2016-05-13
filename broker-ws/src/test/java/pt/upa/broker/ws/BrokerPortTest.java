@@ -75,7 +75,7 @@ public class BrokerPortTest {
     		uddi.list("UpaTransporter%"); result = list0;
     	}};
     	try {
-			new BrokerPort("http://localhost:9090");;
+			new BrokerPort("http://localhost:9090", true);;
 		} catch (JAXRException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,7 +88,7 @@ public class BrokerPortTest {
     		uddi.list("UpaTransporter%"); result = list0;
     	}};
     	String result = "No one is there!";
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		assertEquals(result, server.ping("ola"));
     }
     
@@ -104,7 +104,7 @@ public class BrokerPortTest {
     	}};
     	
     	String result = "UpaTransporterN: ola\nUpaTransporterN: ola\n";
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		assertEquals(result, server.ping("ola"));
     }
     
@@ -113,7 +113,7 @@ public class BrokerPortTest {
     	new Expectations() {{ 
     		uddi.list("UpaTransporter%"); result = list0;
     	}};
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		server.requestTransport(knownCentre, knownCentre, 20);
     }
     
@@ -126,7 +126,7 @@ public class BrokerPortTest {
     		job1.getJobPrice(); result = 19;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		String id = server.requestTransport(knownCentre, knownCentre, 20);
 		int price = server.viewTransport(id).getPrice();
 		assertEquals(19, price);
@@ -144,7 +144,7 @@ public class BrokerPortTest {
     		job2.getJobPrice(); result = 20;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		server.requestTransport(knownCentre, knownCentre, 20);
     }
     
@@ -160,7 +160,7 @@ public class BrokerPortTest {
     		job2.getJobPrice(); result = 19;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		String id = server.requestTransport(knownCentre, knownCentre, 20);
 		int price = server.viewTransport(id).getPrice();
 		assertEquals(19, price);
@@ -178,7 +178,7 @@ public class BrokerPortTest {
     		job2.getJobPrice(); result = 16;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		String id = server.requestTransport(knownCentre, knownCentre, 20);
 		int price = server.viewTransport(id).getPrice();
 		assertEquals(16, price);
@@ -192,7 +192,7 @@ public class BrokerPortTest {
         	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		server.requestTransport(knownCentre, unknownCity, 20);
     }
     
@@ -206,7 +206,7 @@ public class BrokerPortTest {
     		transporter2.requestJob(knownCentre, knownNorth, 20); result = null;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		String id = server.requestTransport(knownCentre, knownNorth, 20);
     }
     
@@ -219,7 +219,7 @@ public class BrokerPortTest {
         	new TransporterClient("http://localhost:8081/transporter-ws/endpoint", "UpaBroker"); result = transporter2;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		server.viewTransport("1");
     }
     
@@ -234,7 +234,7 @@ public class BrokerPortTest {
     		job1.getJobPrice(); result = 15;
     	}};
     	
-		BrokerPort server = new BrokerPort("http://localhost:9090");
+		BrokerPort server = new BrokerPort("http://localhost:9090", true);
 		String id = server.requestTransport(knownCentre, knownNorth, 20);
 		TransportView t = server.viewTransport("1");
 		int price = t.getPrice();

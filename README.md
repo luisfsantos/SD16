@@ -56,6 +56,13 @@ cd uddi-naming
 mvn clean install
 ```
 
+[5] Instalar serviço de handlers
+
+```
+cd ws-handlers
+mvn clean install
+```
+
 -------------------------------------------------------------------------------
 
 ### Serviço Certificate Authority (CA)
