@@ -45,6 +45,8 @@ cd T_25-project
 
 ```
 git clone -b SD_R1 https://github.com/tecnico-distsys/T_25-project/
+
+cd T_25-project
 ```
 
 [4] Instalar módulos de bibliotecas auxiliares
@@ -54,6 +56,23 @@ cd uddi-naming
 mvn clean install
 ```
 
+-------------------------------------------------------------------------------
+
+### Serviço Certificate Authority (CA)
+
+[1] Construir e executar **servidor**
+
+```
+cd ca-ws
+mvn package exec:java
+```
+
+[2] Construir **cliente** e executar testes
+
+```
+cd ca-ws-cli
+mvn clean install
+```
 
 -------------------------------------------------------------------------------
 
@@ -87,7 +106,9 @@ mvn clean install
 ```
 cd broker-ws
 mvn clean install
-mvn exec:java
+
+mvn exec:java -Dws.num=0
+mvn exec:java -Dws.num=1
 ```
 
 
