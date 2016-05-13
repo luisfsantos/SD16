@@ -22,9 +22,8 @@ public class BrokerApplication {
 
 		EndpointManager server = new EndpointManager(uddiURL, name, url, isPrimary);
 		
-		try {																// FIXME all printout
+		try {																
 			System.out.printf("Starting %s%n", url);								
-			System.out.printf("Publishing '%s' to UDDI at %s%n", name, uddiURL);
 			server.start();
 			// wait
 			System.out.println("Awaiting connections");
