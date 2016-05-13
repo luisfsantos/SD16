@@ -1,16 +1,12 @@
 package pt.upa.ws.handler;
 
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.Set;
-import java.util.UUID;
 
 public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {
 
@@ -21,10 +17,10 @@ public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {
 
 	@Override
 	public boolean handleMessage(SOAPMessageContext smc) {
-		Boolean outboundElement = (Boolean) smc
-				.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+		Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 		String operationName = null;
-		if ((boolean) !outboundElement){ //for requests only
+		if (outboundElement){ //for requests only
 			SOAPEnvelope msg = null; //get the SOAP Message envelope
 			try {
 				msg = smc.getMessage().getSOAPPart().getEnvelope();
@@ -37,23 +33,25 @@ public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {
 			} catch (SOAPException e) {
 				e.printStackTrace();
 			}
-			operationName = body.getChildNodes().item(1).getLocalName();
+			try {
+				operationName = body.getChildNodes().item(0).getLocalName();
+				System.out.print(operationName);
+			} catch (Exception e ) {
+				
+			}
+			
 		}
 
-
 		try {
-			if (outboundElement.booleanValue() && operationName.equals("RequestJob")) { //FIXME
+			if (outboundElement && operationName.equals("requestJob")) {
 				return handleInBound(smc);
 			}
 		} catch (Exception e) {
-			if (e instanceof RuntimeException) {
-				throw new RuntimeException(e.getMessage());
-			} else {
-				System.out.print("Caughtexception in handleMessage: " + e);
-			}
+			System.out.print("Caughtexception in handleMessage: " + e);
 		}
 
 		return true;
+		
 	}
 
 	@Override
@@ -66,20 +64,19 @@ public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {
 
 	}
 
-	public boolean handleInBound(SOAPMessageContext smc) throws SOAPException { //FIXME
+	public boolean handleInBound(SOAPMessageContext smc) throws SOAPException {
 		SOAPEnvelope msg = smc.getMessage().getSOAPPart().getEnvelope();
 
 		Name jobPrice = msg.createName("price");
 		SOAPBody body = msg.getBody();
-		SOAPElement priceEle = (SOAPElement) body.getChildElements(jobPrice).next();
 
-		if (Integer.parseInt(priceEle.getValue()) == 666) {
-			priceEle.setValue("1000000");
+		//if(body.getChildNodes().item(0).getChildNodes().item(2)) {
+		SOAPElement priceEle = (SOAPElement) body.getChildNodes().item(0).getChildNodes().item(2);//(SOAPElement) body.getChildElements(jobPrice).next();
+		if (priceEle.getValue().equals("66")) {
+			priceEle.removeContents();
+			priceEle.addTextNode("666");
 		}
-		/*
-		Name name = smc.getMessage().getSOAPPart().getEnvelope().createName("Ataque");
-		body.addChildElement(name);
-		*/
+
 		return true;
 	}
 

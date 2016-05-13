@@ -10,6 +10,8 @@ import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
 
+import javax.xml.ws.soap.SOAPFaultException;
+
 
 /**
  * Test suite
@@ -265,6 +267,11 @@ public class RequestJobIT extends AbstractIT {
 		JobView jv1 = CLIENT.requestJob(SUL_1, CENTRO_1, UNITARY_PRICE);
 		final int price = jv1.getJobPrice();
 		assertEquals(ZERO_PRICE, price);
+	}
+
+	@Test(expected = SOAPFaultException.class)
+	public void requestTheDevil() throws BadLocationFault_Exception, BadPriceFault_Exception {
+		JobView jobView = CLIENT.requestJob("Lisboa", "Beja", 66);
 	}
 
 }
