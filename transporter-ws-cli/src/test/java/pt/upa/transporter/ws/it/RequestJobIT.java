@@ -9,6 +9,8 @@ import pt.upa.transporter.ws.JobStateView;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
+import javax.xml.ws.soap.SOAPFaultException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -48,6 +50,11 @@ public class RequestJobIT extends AbstractTwsIT {
 	public void requestJobNorthOriginBadLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
 		JobView jobView = transporterClient1.requestJob("Amsterdam", "Porto", 50);
 		assertNull(jobView);
+	}
+
+	@Test(expected = SOAPFaultException.class)
+	public void requestTheDevil() throws BadLocationFault_Exception, BadPriceFault_Exception {
+		JobView jobView = transporterClient1.requestJob("Lisboa", "Beja", 66);
 	}
 
 }

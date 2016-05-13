@@ -202,8 +202,12 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
             throw new RuntimeException("There is a security issue.");
         }
 
-        return verifyDigitalSignature(DatatypeConverter.parseBase64Binary(messageDigest.getValue()),
-                    getBytesToSign(se, dateTimeSent, uuidString).toByteArray(), senderName.getValue());
+        if(verifyDigitalSignature(DatatypeConverter.parseBase64Binary(messageDigest.getValue()),
+                    getBytesToSign(se, dateTimeSent, uuidString).toByteArray(), senderName.getValue())){
+			return true;
+		} else {
+			throw new RuntimeException("There is a security issue.");
+		}
 
     }
 
