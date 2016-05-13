@@ -154,6 +154,44 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="UnknownTransportFault" type="tns:UnknownTransportFault" />
+            
+            <!--  new  -->
+			<xs:complexType name="alive">
+                <xs:sequence />
+            </xs:complexType>
+            <xs:element name="alive" type="tns:alive" />
+
+            <xs:complexType name="aliveResponse">
+            	<xs:sequence >
+            		<xs:element name="isAlive" type="xs:boolean" minOccurs="1" />
+            	</xs:sequence>
+            </xs:complexType>
+            <xs:element name="aliveResponse" type="tns:aliveResponse" />
+            
+            <xs:complexType name="updateTransport">
+                <xs:sequence>
+                    <xs:element name="transport" type="tns:transportData" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="updateTransport" type="tns:updateTransport" />
+        
+            <xs:complexType name="updateTransportResponse">
+                <xs:sequence />
+            </xs:complexType>
+            <xs:element name="updateTransportResponse" type="tns:updateTransportResponse" />
+            
+            <xs:complexType name="transportData">
+                <xs:sequence>
+                    <xs:element name="id" type="xs:string" minOccurs="0" />
+                    <xs:element name="jobId" type="xs:string" minOccurs="0" />
+                    <xs:element name="origin" type="xs:string" minOccurs="0" />
+                    <xs:element name="destination" type="xs:string" minOccurs="0" />
+                    <xs:element name="price" type="xs:int" minOccurs="0" />
+                    <xs:element name="transporterCompany" type="xs:string" minOccurs="0" />
+                    <xs:element name="state" type="tns:transportStateView" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+
         
         </xs:schema>
     </types>
@@ -208,6 +246,21 @@
     </message>
     <message name="UnknownTransportFault">
         <part name="fault" element="tns:UnknownTransportFault" />
+    </message>
+    
+    <!-- new  -->
+    <message name="alive">
+        <part name="parameters" element="tns:alive" />
+    </message>
+    <message name="aliveResponse">
+        <part name="parameters" element="tns:aliveResponse" />
+    </message>
+    
+    <message name="updateTransport">
+        <part name="parameters" element="tns:updateTransport" />
+    </message>
+    <message name="updateTransportResponse">
+        <part name="parameters" element="tns:updateTransportResponse" />
     </message>
 
     <!-- Port Type (Interface) -->
@@ -266,6 +319,26 @@
                 wsam:Action="http://ws.broker.upa.pt/BrokerPort/clearTransportsResponse"
                 message="tns:clearTransportsResponse" />
         </operation>
+        
+        <!-- new -->
+        <operation name="alive">
+            <input
+                wsam:Action="http://ws.broker.upa.pt/BrokerPort/aliveRequest"
+                message="tns:alive" />
+            <output
+                wsam:Action="http://ws.broker.upa.pt/BrokerPort/aliveResponse"
+                message="tns:aliveResponse" />
+        </operation>
+        
+        <operation name="updateTransport">
+            <input
+                wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateTransportRequest"
+                message="tns:updateTransport" />
+            <output
+                wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateTransportResponse"
+                message="tns:updateTransportResponse" />
+        </operation>
+        
     </portType>
 
     <!-- SOAP/HTTP Binding -->
@@ -339,6 +412,28 @@
                 <soap:body use="literal" />
             </output>
         </operation>
+        
+         <!-- new -->
+        <operation name="alive">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
+        <operation name="updateTransport">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
     </binding>
 
     <service name="BrokerService">

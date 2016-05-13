@@ -25,6 +25,10 @@ public class TransporterJob {
 		return job.getJobPrice();
 	}
 	
+	public String getJobIdentifier() {
+		return job.getJobIdentifier();
+	}
+	
 	public String getCompanyName() {
 		return job.getCompanyName();
 	}

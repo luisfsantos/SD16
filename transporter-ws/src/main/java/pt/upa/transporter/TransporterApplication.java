@@ -5,8 +5,6 @@ import java.util.Properties;
 
 public class TransporterApplication {
 
-	private static final String PROP_FILE = "/prop.properties";
-	private static Properties PROPS;
 
 	public static void main(String[] args) throws Exception {
 		System.out.println(TransporterApplication.class.getSimpleName() + " starting...");
@@ -17,21 +15,10 @@ public class TransporterApplication {
 			return;
 		}
 
-		PROPS = new Properties();
-		try {
-			PROPS.load(TransporterApplication.class.getResourceAsStream(PROP_FILE));
-		} catch (IOException e) {
-			final String msg = String.format("Could not load properties file {}", PROP_FILE);
-			System.out.println(msg);
-			throw e;
-		}
-
 
 		String uddiURL = args[0];
 		String name = args[1];
 		String url = args[2];
-
-		PROPS.setProperty("ws.name", name);
 
 		EndpointManager server = new EndpointManager(uddiURL, name, url);
 		
