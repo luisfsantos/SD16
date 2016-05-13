@@ -33,8 +33,10 @@ public class AuthenticationHandler implements SOAPHandler<SOAPMessageContext> {
     private static String COMPANY_NAME;
     private static String JKS_PATH;
     private static KeyStore keyStore;
-    private Map<String, Set<UUID>> invalidUUIDs = new HashMap<>();
     private static CAClient caPort = new CAClient("http://localhost:8069/ca-ws/endpoint");
+    private Map<String, Set<UUID>> invalidUUIDs = Collections.synchronizedMap(new HashMap<>());
+
+
 
     private void init() {
         PROPS = new Properties();
